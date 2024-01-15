@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-const app = require('../lib/app');
+const app = require('../lib/app').default;
 
 const debug = require('debug')('live-project-backend-quickgrade:server');
 const http = require('http');
