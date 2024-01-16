@@ -106,5 +106,17 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src"]
+  "include": [
+  "src",
+  "lib/app.js",
+  "lib/database/databaseSqlite.js",
+  "lib/model/courseModel.js",
+  "lib/model/enrolmentModel.js",
+  "lib/model/lecturerModel.js",
+  "lib/model/studentModel.js",
+  "src/app.ts"
+], 
+
+    // other tsconfig settings...
+  
 }
