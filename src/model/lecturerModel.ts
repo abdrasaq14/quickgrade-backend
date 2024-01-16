@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Courses from '../model/courseModel';
 
 class Lecturer extends Model {
-  static associate() {
+  static associate(models: any): void {
     // Define relationships here
     Lecturer.belongsToMany(Courses, {
       through: 'LecturerCourses', // Create an intermediate table if needed
@@ -21,6 +21,10 @@ Lecturer.init(
       type: DataTypes.UUID,
       defaultValue: () => uuidv4(),
       primaryKey: true,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     firstName: {
