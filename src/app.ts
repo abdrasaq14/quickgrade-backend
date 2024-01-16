@@ -10,12 +10,17 @@ import cookieParser from 'cookie-parser';
 import sequelize from './database/databaseSqlite';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
+
 import cors from 'cors';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import oauthRouter from './routes/oauth';
 import requestRouter from './routes/request';
+
+import indexRouter from './routes/index';
+
+
 
 config();
 
@@ -47,9 +52,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
+
 app.use('/users', usersRouter);
 app.use('/oauth', oauthRouter);
 app.use('/request', requestRouter);
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
