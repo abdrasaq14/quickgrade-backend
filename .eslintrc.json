@@ -18,7 +18,10 @@
       "lib/model/courseModel.js",
       "lib/model/enrolmentModel.js",
       "lib/model/lecturerModel.js",
-      "lib/model/studentModel.js"
+      "lib/model/studentModel.js",
+      "lib/routes/request.js",
+      "lib/routes/oauth.js"
+
     ],
     "rules": {
       // Add other rules if needed
