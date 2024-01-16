@@ -114,7 +114,10 @@
   "lib/model/studentCourseModel.js",
   "lib/model/lecturerModel.js",
   "lib/model/studentModel.js",
-  "src/app.ts"
+  "src/app.ts",
+  "lib/routes/request.js",
+  "lib/routes/oauth.js"
+
 ], 
 
     // other tsconfig settings...
