@@ -16,7 +16,7 @@
       "lib/app.js",
       "lib/database/databaseSqlite.js",
       "lib/model/courseModel.js",
-      "lib/model/enrolmentModel.js",
+      "lib/model/studentCourseModel.js",
       "lib/model/lecturerModel.js",
       "lib/model/studentModel.js"
     ],

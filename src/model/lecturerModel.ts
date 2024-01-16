@@ -3,7 +3,17 @@ import sequelize from '../database/databaseSqlite';
 import { v4 as uuidv4 } from 'uuid';
 import Courses from '../model/courseModel';
 
-class Lecturer extends Model {}
+class Lecturer extends Model {
+  static associate() {
+    // Define relationships here
+    Lecturer.belongsToMany(Courses, {
+      through: 'LecturerCourses', // Create an intermediate table if needed
+      foreignKey: 'lecturerId',
+      otherKey: 'courseId',
+      as: 'courses',
+    });
+  }
+}
 
 Lecturer.init(
   {
@@ -29,21 +39,11 @@ Lecturer.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    courseId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: Courses,
-        key: 'courseId',
-      },
-    },
   },
   {
     sequelize,
-    modelName: 'lecturer',
+    modelName: 'Lecturer',
   },
 );
-
-Lecturer.hasMany(Courses, { foreignKey: 'lecturerId' });
 
 export default Lecturer;
