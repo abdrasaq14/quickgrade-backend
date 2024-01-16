@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../database/databaseSqlite';
 import StudentCourses from '../model/studentCourseModel';
-import Student from './studentModel';
+import Student from '../model/studentModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class Courses extends Model {

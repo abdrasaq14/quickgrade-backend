@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../database/databaseSqlite';
 import StudentCourses from '../model/studentCourseModel';
-import Courses from './courseModel';
+import Courses from '../model/courseModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class Student extends Model {
@@ -39,3 +39,4 @@ Student.init(
 );
 
 export default Student;
+
