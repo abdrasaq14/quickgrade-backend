@@ -14,7 +14,7 @@ Student.init(
       primaryKey: true,
       allowNull: false,
     },
-    name: {
+    faculty: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -22,22 +22,19 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     lecturerId: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: Lecturer,
         key: 'lecturerId',
       },
     },
-    enrolmentId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: Enrolment,
-        key: 'enrolmentId',
-      },
-    },
+    
   },
   {
     sequelize,
@@ -46,3 +43,14 @@ Student.init(
 );
 
 export default Student;
+
+
+
+// enrolmentId: {
+//   type: DataTypes.UUID,
+//   allowNull: false,
+//   references: {
+//     model: Enrolment,
+//     key: 'enrolmentId',
+//   },
+// },
