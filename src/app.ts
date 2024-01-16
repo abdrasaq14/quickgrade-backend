@@ -12,7 +12,8 @@ import logger from 'morgan';
 import bodyParser from 'body-parser';
 import indexRouter from './routes/index';
 
-
+import studentRouter from './routes/studentsRoutes';
+import lecturerRouter from './routes/lecturersRoutes';
 
 config();
 
@@ -37,7 +38,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
-
+app.use(`/`,studentRouter);
+app.use(`/`,lecturerRouter);
 
 
 
