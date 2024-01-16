@@ -1,10 +1,19 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../database/databaseSqlite';
+import StudentCourses from '../model/studentCourseModel';
+import Courses from '../model/courseModel';
 import { v4 as uuidv4 } from 'uuid';
-import Lecturer from '../model/lecturerModel';
-import Enrolment from '../model/enrolmentModel';
 
-class Student extends Model {}
+class Student extends Model {
+  static associate(models: any): void {
+    Student.belongsToMany(Courses, {
+      through: StudentCourses,
+      foreignKey: 'studentId',
+      otherKey: 'courseId',
+      as: 'courses',
+    });
+  }
+}
 
 Student.init(
   {
@@ -12,6 +21,10 @@ Student.init(
       type: DataTypes.UUID,
       defaultValue: () => uuidv4(),
       primaryKey: true,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     faculty: {
@@ -22,35 +35,11 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    lecturerId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: Lecturer,
-        key: 'lecturerId',
-      },
-    },
-    
   },
   {
     sequelize,
-    modelName: 'student',
+    modelName: 'Student',
   },
 );
 
 export default Student;
-
-
-
-// enrolmentId: {
-//   type: DataTypes.UUID,
-//   allowNull: false,
-//   references: {
-//     model: Enrolment,
-//     key: 'enrolmentId',
-//   },
-// },
