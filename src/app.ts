@@ -13,6 +13,7 @@ import bodyParser from 'body-parser';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
+import otpRouter from './routes/otp';
 
 config();
 
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/otp', otpRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
