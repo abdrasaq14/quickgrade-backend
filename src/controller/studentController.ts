@@ -1,5 +1,3 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../database/databaseSqlite';
 import Student from '../model/studentModel';
 import express, { Request, Response, NextFunction} from 'express';
 import Lecturer from '../model/lecturerModel';
@@ -43,13 +41,6 @@ return res.status(200).json({studentDetail: createdStudent});
     });
   }
 }
-
-
-
-
-
-
-
 
 
 

@@ -14,11 +14,10 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 
 import indexRouter from './routes/index';
-import usersRouter from './routes/users';
 import oauthRouter from './routes/oauth';
 import requestRouter from './routes/request';
 
-import indexRouter from './routes/index';
+
 
 import studentRouter from './routes/studentsRoutes';
 import lecturerRouter from './routes/lecturersRoutes';
@@ -54,7 +53,7 @@ app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
 
-app.use('/users', usersRouter);
+
 app.use('/oauth', oauthRouter);
 app.use('/request', requestRouter);
 

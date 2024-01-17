@@ -1,6 +1,7 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../database/databaseSqlite';
+
 import Lecturer from '../model/lecturerModel';
+
+
 import express, { Request, Response, NextFunction} from 'express';
 import bcyrpt from 'bcryptjs';
 import lecturerModel from '../model/lecturerModel';
@@ -49,10 +50,6 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
     });
   }
 };
-
-
-
-
 
 
 

@@ -5,7 +5,7 @@ import Student from '../model/studentModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class Courses extends Model {
-  static associate() {
+  static associate(models: any): void {
     Courses.belongsToMany(Student, {
       through: StudentCourses,
       foreignKey: 'courseId',
