@@ -6,7 +6,10 @@ import Courses from './courseModel';
 class Lecturer extends Model {
   static associate(models: any): void {
     // Define the many-to-many relationship with the Course model
-    Lecturer.belongsToMany(Courses, { through: 'LecturerCourses', as: 'courses' });
+    Lecturer.belongsToMany(Courses, {
+      through: 'LecturerCourses',
+      as: 'courses',
+    });
   }
 }
 
@@ -21,10 +24,21 @@ Lecturer.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    otp: {
+      type: DataTypes.STRING,
+    },
+    otpExpiration: {
+      type: DataTypes.DATE,
+    },
+    isVerify: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     faculty: {
       type: DataTypes.STRING,
