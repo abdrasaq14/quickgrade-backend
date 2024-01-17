@@ -107,6 +107,7 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": [
+
     "src",
     "lib/app.js",
     "lib/database/databaseSqlite.js",
@@ -121,6 +122,14 @@
     "lib/verification.js",
     "src/routes/otp.ts"
   ], 
+  
+  "lib/model/studentCourseModel.js",
+  
+
+  "lib/routes/request.js",
+  "lib/routes/oauth.js"
+
+], 
 
 
     // other tsconfig settings...

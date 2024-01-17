@@ -16,14 +16,18 @@
       "lib/app.js",
       "lib/database/databaseSqlite.js",
       "lib/model/courseModel.js",
-      "lib/model/enrolmentModel.js",
+      "lib/model/studentCourseModel.js",
       "lib/model/lecturerModel.js",
-      "lib/model/studentModel.js"
+      "lib/model/studentModel.js",
+      "lib/routes/request.js",
+      "lib/routes/oauth.js"
+
     ],
     "rules": {
       // Add other rules if needed
       "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/strict-boolean-expressions": "off"
+      "@typescript-eslint/strict-boolean-expressions": "off",
+      "@typescript-eslint/prefer-nullish-coalescing": "off"
     }
   }
   
