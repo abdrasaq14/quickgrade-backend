@@ -10,6 +10,14 @@ import cookieParser from 'cookie-parser';
 import sequelize from './database/databaseSqlite';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
+
+import cors from 'cors';
+
+import indexRouter from './routes/index';
+import usersRouter from './routes/users';
+import oauthRouter from './routes/oauth';
+import requestRouter from './routes/request';
+
 import indexRouter from './routes/index';
 
 import studentRouter from './routes/studentsRoutes';
@@ -27,6 +35,13 @@ sequelize
   });
 const app = express();
 
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  }),
+);
+
 // view engine setup
 app.set('views', path.join(__dirname, '../', 'views'));
 app.set('view engine', 'ejs');
@@ -38,8 +53,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
-app.use(`/`,studentRouter);
-app.use(`/`,lecturerRouter);
+
+app.use('/users', usersRouter);
+app.use('/oauth', oauthRouter);
+app.use('/request', requestRouter);
 
 
 
