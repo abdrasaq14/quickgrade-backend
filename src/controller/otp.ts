@@ -28,26 +28,26 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req.body;
 
-    let user: Student | Lecturer | undefined;
+    // let user: Student | Lecturer | undefined;
 
-    const student = await Student.findOne({ where: { email } });
-    const lecturer = await Lecturer.findOne({ where: { email } });
+    // const student = await Student.findOne({ where: { email } });
+    // const lecturer = await Lecturer.findOne({ where: { email } });
 
-    if (student) {
-      user = student;
-    } else if (lecturer) {
-      user = lecturer;
-    }
+    // if (student) {
+    //   user = student;
+    // } else if (lecturer) {
+    //   user = lecturer;
+    // }
 
-    if (!user) {
-      res.status(404).json({ error: 'User not found' });
-      return;
-    }
+    // if (!user) {
+    //   res.status(404).json({ error: 'User not found' });
+    //   return;
+    // }
 
     const totpSecret = speakeasy.generateSecret({ length: 20 });
 
     // Store the TOTP secret in the map along with the user
-    totpSecretMap[email] = { secret: totpSecret.base32, user };
+    // totpSecretMap[email] = { secret: totpSecret.base32, user };
 
     const totpToken = speakeasy.totp({
       secret: totpSecret.base32,
@@ -56,13 +56,19 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
 
     const mailOptions = {
       from: {
-        name: 'Quick Grade App',
+        name: 'QuickGrade App',
         address: 'quickgradedecagon@gmail.com',
       },
       to: email,
       subject: 'Quick Grade App - Email Verification Code',
       text: `TOTP: ${totpToken}`,
-      html: `<b>TOTP: ${totpToken}</b>`,
+      html: ` <h3>Hi there,
+Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+<h1>${totpToken}<h1>
+<h3>This OTP will expire in 24 hours. If you did not sign up for a QuickGrade account,
+you can safely ignore this email.
+Best,
+The QuickGrade Team</h3>`,
     };
 
     await transporter.sendMail(mailOptions);
