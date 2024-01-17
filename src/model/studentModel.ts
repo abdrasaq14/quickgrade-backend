@@ -5,9 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 class Student extends Model {
   static associate(models: any): void {
-    Student.belongsToMany(Courses, {
-      foreignKey: 'studentId',
-      through: 'Student'
+    Student.belongsToMany(Courses, { through: 'StudentCourses', as: 'courses' });
     } )
   
   }
@@ -36,15 +34,6 @@ Student.init(
     department: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    Courses: {
-      type: DataTypes.JSON,
-      defaultValue: {},
-      allowNull: false,
-      references:{
-        model:'Courses',
-        key:'courseId'
-      }
     },
   },
   {
