@@ -1,9 +1,13 @@
 import express, { Request, Response, NextFunction} from 'express'; 
-import { updateStudentPassword } from '../controller/studentController';
+import { studentSignup, updateStudentPassword } from '../controller/studentController';
+
  
  
  const router = express.Router();
 
+
+
+ router.post ('/students/signup', studentSignup);
 
 
 
