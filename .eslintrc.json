@@ -9,7 +9,7 @@
       "sourceType": "module",
       "parser": "@typescript-eslint/parser",
       "plugins": ["@typescript-eslint"],
-      "extends": ["plugin:@typescript-eslint/recommended"],
+      "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
       "project": "./tsconfig.json"
     },
     "ignorePatterns": [
