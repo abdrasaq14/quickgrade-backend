@@ -1,7 +1,46 @@
 import Student from '../model/studentModel';
-import { Request, Response} from 'express';
+import express, { Request, Response, NextFunction} from 'express';
+import Lecturer from '../model/lecturerModel';
+import bcrypt from 'bcryptjs';
+import StudentModel from '../model/studentModel'; // Import the missing StudentModel
 
 
+export const studentSignup = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    console.log("req", req.body)
+    const { faculty, email, department, password} = req.body;
+
+    const existingStudent = await StudentModel.findOne({ where: { email } });
+
+    if (existingStudent) {
+      return res.status(400).json({
+        message: "Student already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const createdStudent = await StudentModel.create({
+      faculty,
+      department,
+      email,
+      password: hashedPassword,
+    });
+
+    if (!createdStudent) {
+        return res.status(400).json({
+            message: "Student signup failed",
+        });
+    }
+return res.status(200).json({studentDetail: createdStudent});
+    
+  }catch (error) {
+    console.error("Error creating student: ", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
 
 
 

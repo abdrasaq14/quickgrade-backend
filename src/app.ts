@@ -19,7 +19,8 @@ import requestRouter from './routes/request';
 
 
 
-
+import studentRouter from './routes/studentsRoutes';
+import lecturerRouter from './routes/lecturersRoutes';
 
 config();
 

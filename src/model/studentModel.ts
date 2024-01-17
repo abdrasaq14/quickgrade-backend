@@ -27,6 +27,10 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     faculty: {
       type: DataTypes.STRING,
       allowNull: false,
