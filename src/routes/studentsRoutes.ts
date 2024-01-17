@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction} from 'express'; 
-import { studentSignup, updateStudentPassword } from '../controller/studentController';
+import { studentSignup, updateStudentPassword, studentLogin } from '../controller/studentController';
 
  
  
@@ -7,7 +7,8 @@ import { studentSignup, updateStudentPassword } from '../controller/studentContr
 
 
 
- router.post ('/students/signup', studentSignup);
+ router.post ('/signup', studentSignup);
+ router.post('/login', studentLogin);
 
 
 

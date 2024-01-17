@@ -2,7 +2,7 @@ import Student from '../model/studentModel';
 import express, { Request, Response, NextFunction} from 'express';
 import Lecturer from '../model/lecturerModel';
 import bcrypt from 'bcryptjs';
-import StudentModel from '../model/studentModel'; // Import the missing StudentModel
+//import StudentModel from '../model/studentModel'; // Import the missing StudentModel
 
 
 export const studentSignup = async (req: Request, res: Response, next: NextFunction) => {
@@ -10,7 +10,7 @@ export const studentSignup = async (req: Request, res: Response, next: NextFunct
     console.log("req", req.body)
     const { faculty, email, department, password} = req.body;
 
-    const existingStudent = await StudentModel.findOne({ where: { email } });
+    const existingStudent = await Student.findOne({ where: { email } });
 
     if (existingStudent) {
       return res.status(400).json({
@@ -19,8 +19,8 @@ export const studentSignup = async (req: Request, res: Response, next: NextFunct
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    const createdStudent = await StudentModel.create({
+console.log("password", hashedPassword)
+    const createdStudent = await Student.create({
       faculty,
       department,
       email,
@@ -41,6 +41,45 @@ return res.status(200).json({studentDetail: createdStudent});
     });
   }
 }
+
+
+
+
+
+
+export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const { studentId, password } = req.body;
+  try {
+    
+    const existingStudent = await Student.findOne({ where: { studentId } });
+
+    if (!existingStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+ 
+    const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
+    return res.status(200).json({
+      studentDetail: existingStudent,
+      message: "Login successful",
+    });
+  } catch (error) {
+    console.error("Error during student login:", error);
+
+    return res.status(500).json({
+      message: `Error: ${error}`,
+    });
+  }
+};
+
 
 
 

@@ -6,9 +6,11 @@ import express, { Request, Response, NextFunction} from 'express';
 import bcyrpt from 'bcryptjs';
 import lecturerModel from '../model/lecturerModel';
 
+
+
 export const lecturerSignup = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log("req", req.body)
+    
     const { firstName, lastName, faculty, department, password, email } = req.body;
     const existingLecturer = await lecturerModel.findOne({ where: { email } });
 
@@ -36,7 +38,7 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
       });
     }
 
-    console.log("Created Lecturer:", createdLecturer);
+    
 
     return res.status(200).json({
       lecturerId: createdLecturer, // Update the property name to 'id'
@@ -47,6 +49,43 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
 
     return res.status(500).json({
       message: ` error: ${error}`,
+    });
+  }
+};
+
+
+
+export const lecturerLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const { lecturerId, password } = req.body;
+ 
+  
+  try {
+   
+    const existingLecturer = await lecturerModel.findOne({ where: { lecturerId } });
+
+    if (!existingLecturer) {
+      return res.status(400).json({
+        message: "Invalid lecturerId",
+      });
+    }
+
+    const isPasswordValid = await bcyrpt.compare(password, existingLecturer.dataValues.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
+
+    return res.status(200).json({
+      lecturerId: existingLecturer.dataValues.id,
+      message: "Login successful",
+    });
+  } catch (error) {
+    console.error("Error during lecturer login:", error);
+
+    return res.status(500).json({
+      message: `Error: ${error}`,
     });
   }
 };
@@ -80,3 +119,4 @@ export const updateLecturerPassword = async (req: Request, res: Response) => {
 
 
 }
+

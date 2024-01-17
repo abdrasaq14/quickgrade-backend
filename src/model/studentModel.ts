@@ -4,9 +4,10 @@ import Courses from '../model/courseModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class Student extends Model {
+  password: any;
   static associate(models: any): void {
     Student.belongsToMany(Courses, { through: 'StudentCourses', as: 'courses' });
-    } )
+    
   
   }
 }
@@ -33,7 +34,7 @@ Student.init(
     },
     department: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false ,
     },
   },
   {
