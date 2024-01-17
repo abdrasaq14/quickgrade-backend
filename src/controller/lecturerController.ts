@@ -10,7 +10,7 @@ import lecturerModel from '../model/lecturerModel';
 
 export const lecturerSignup = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log("req", req.body)
+    
     const { firstName, lastName, faculty, department, password, email } = req.body;
     const existingLecturer = await lecturerModel.findOne({ where: { email } });
 
@@ -38,7 +38,7 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
       });
     }
 
-    console.log("Created Lecturer:", createdLecturer);
+    
 
     return res.status(200).json({
       lecturerId: createdLecturer, // Update the property name to 'id'
@@ -55,7 +55,6 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
 
 
 
-<<<<<<< HEAD
 export const lecturerLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { lecturerId, password } = req.body;
  
@@ -70,7 +69,7 @@ export const lecturerLogin = async (req: Request, res: Response, next: NextFunct
       });
     }
 
-    const isPasswordValid = await bcyrpt.compare(password, existingLecturer.password);
+    const isPasswordValid = await bcyrpt.compare(password, existingLecturer.dataValues.password);
     if (!isPasswordValid) {
       return res.status(401).json({
         message: "Invalid password",
@@ -79,7 +78,7 @@ export const lecturerLogin = async (req: Request, res: Response, next: NextFunct
 
 
     return res.status(200).json({
-      lecturerId: existingLecturer.id, // Assuming your model has an 'id' property
+      lecturerId: existingLecturer.dataValues.id,
       message: "Login successful",
     });
   } catch (error) {
@@ -93,8 +92,6 @@ export const lecturerLogin = async (req: Request, res: Response, next: NextFunct
 
 
 
-=======
->>>>>>> 9030e53bb91b62e73e5791475c1687a2654ced62
 export const updateLecturerPassword = async (req: Request, res: Response) => {
 
     const { userId } = req.params;

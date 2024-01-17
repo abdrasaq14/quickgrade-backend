@@ -2,14 +2,11 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../database/databaseSqlite';
 import { v4 as uuidv4 } from 'uuid';
 import Lecturer from './lecturerModel';
+import Student from './studentModel';
 
 class Courses extends Model {
   static associate(models: any): void {
-    Courses.belongsToMany(Lecturer, {
-      foreignKey: 'courseId',
-      through: 'Courses',
-      
-
+    Courses.belongsToMany(Student, { through: 'StudentCourses', as: 'students'
     });
   }
 }

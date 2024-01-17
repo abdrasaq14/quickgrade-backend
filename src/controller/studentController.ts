@@ -2,7 +2,7 @@ import Student from '../model/studentModel';
 import express, { Request, Response, NextFunction} from 'express';
 import Lecturer from '../model/lecturerModel';
 import bcrypt from 'bcryptjs';
-import StudentModel from '../model/studentModel'; // Import the missing StudentModel
+//import StudentModel from '../model/studentModel'; // Import the missing StudentModel
 
 
 export const studentSignup = async (req: Request, res: Response, next: NextFunction) => {
@@ -10,7 +10,7 @@ export const studentSignup = async (req: Request, res: Response, next: NextFunct
     console.log("req", req.body)
     const { faculty, email, department, password} = req.body;
 
-    const existingStudent = await StudentModel.findOne({ where: { email } });
+    const existingStudent = await Student.findOne({ where: { email } });
 
     if (existingStudent) {
       return res.status(400).json({
@@ -20,7 +20,7 @@ export const studentSignup = async (req: Request, res: Response, next: NextFunct
 
     const hashedPassword = await bcrypt.hash(password, 12);
 console.log("password", hashedPassword)
-    const createdStudent = await StudentModel.create({
+    const createdStudent = await Student.create({
       faculty,
       department,
       email,
@@ -45,14 +45,13 @@ return res.status(200).json({studentDetail: createdStudent});
 
 
 
-<<<<<<< HEAD
 
 
 export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { studentId, password } = req.body;
   try {
     
-    const existingStudent = await StudentModel.findOne({ where: { studentId } });
+    const existingStudent = await Student.findOne({ where: { studentId } });
 
     if (!existingStudent) {
       return res.status(404).json({
@@ -61,7 +60,7 @@ export const studentLogin = async (req: Request, res: Response, next: NextFuncti
     }
  
     const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password);
-    console.log("ispadd", isPasswordValid)
+    
     if (!isPasswordValid) {
       return res.status(401).json({
         message: "Invalid password",
@@ -85,10 +84,6 @@ export const studentLogin = async (req: Request, res: Response, next: NextFuncti
 
 
 
-
-
-=======
->>>>>>> 9030e53bb91b62e73e5791475c1687a2654ced62
 export const updateStudentPassword = async (req: Request, res: Response) => {
 
     const { userId } = req.params;
