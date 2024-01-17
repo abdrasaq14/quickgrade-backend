@@ -6,6 +6,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon .bin/www",
     "prepare": "husky install",
+    "tsc": "tsc -watch",
     "lint": "pretty-quick --staged && lint-staged"
   },
   "dependencies": {

@@ -21,7 +21,7 @@ export const studentSignup = async (req: Request, res: Response, next: NextFunct
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-
+console.log("password", hashedPassword)
     const createdStudent = await StudentModel.create({
       faculty,
       department,
@@ -47,6 +47,40 @@ return res.status(200).json({studentDetail: createdStudent});
 
 
 
+
+
+export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const { studentId, password } = req.body;
+  try {
+    
+    const existingStudent = await StudentModel.findOne({ where: { studentId } });
+
+    if (!existingStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+ 
+    const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password);
+    console.log("ispadd", isPasswordValid)
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
+    return res.status(200).json({
+      studentDetail: existingStudent,
+      message: "Login successful",
+    });
+  } catch (error) {
+    console.error("Error during student login:", error);
+
+    return res.status(500).json({
+      message: `Error: ${error}`,
+    });
+  }
+};
 
 
 
