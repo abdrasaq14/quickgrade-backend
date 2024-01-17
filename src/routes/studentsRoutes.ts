@@ -13,6 +13,6 @@ import { studentSignup, updateStudentPassword, studentLogin } from '../controlle
 
 
 // The route for updating the students's password
-router.put('students/update-password/:userId', updateStudentPassword);
+router.put('/update-password/:userId', updateStudentPassword);
 
 export default router;
