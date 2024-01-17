@@ -15,15 +15,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 
 import indexRouter from './routes/index';
-
 //import usersRouter from './routes/users';
 import otpRouter from './routes/otp';
-
 import oauthRouter from './routes/oauth';
 import requestRouter from './routes/request';
-
 import studentRouter from './routes/studentsRoutes';
 import lecturerRouter from './routes/lecturersRoutes';
+import passResetRouter from './routes/reset-password';
 
 
 config();
@@ -56,13 +54,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
-
-app.use('/users', usersRouter);
+// app.use('/users', usersRouter);
 app.use('/otp', otpRouter);
-
-
+app.use('/students', studentRouter);
+app.use('/lecturers', lecturerRouter);
 app.use('/oauth', oauthRouter);
 app.use('/request', requestRouter);
+app.use('/reset-password', passResetRouter);
 
 
 // catch 404 and forward to error handler
