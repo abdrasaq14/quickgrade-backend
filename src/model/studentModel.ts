@@ -6,9 +6,10 @@ import { v4 as uuidv4 } from 'uuid';
 class Student extends Model {
   password: any;
   static associate(models: any): void {
-    Student.belongsToMany(Courses, { through: 'StudentCourses', as: 'courses' });
-    
-  
+    Student.belongsToMany(Courses, {
+      through: 'StudentCourses',
+      as: 'courses',
+    });
   }
 }
 
@@ -28,13 +29,23 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    otp: {
+      type: DataTypes.STRING,
+    },
+    otpExpiration: {
+      type: DataTypes.DATE,
+    },
+    isVerify: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     faculty: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     department: {
       type: DataTypes.STRING,
-      allowNull: false ,
+      allowNull: false,
     },
   },
   {
