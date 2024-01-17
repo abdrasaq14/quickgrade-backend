@@ -107,19 +107,32 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": [
-  "src",
-  "lib/app.js",
-  "lib/database/databaseSqlite.js",
-  "lib/model/courseModel.js",
+
+    "src",
+    "lib/app.js",
+    "lib/database/databaseSqlite.js",
+    "lib/model/courseModel.js",
+    "lib/model/enrolmentModel.js",
+    "lib/model/lecturerModel.js",
+    "lib/model/studentModel.js",
+    "src/app.ts",
+    "lib/controller/create-otp.js",
+    "lib/controller/otp.js",
+    "lib/routes/otp.js",
+    "lib/verification.js",
+    "src/routes/otp.ts"
+  ], 
+  
   "lib/model/studentCourseModel.js",
-  "lib/model/lecturerModel.js",
-  "lib/model/studentModel.js",
-  "src/app.ts",
+  
+
   "lib/routes/request.js",
   "lib/routes/oauth.js"
 
 ], 
 
+
     // other tsconfig settings...
   
 }
+
