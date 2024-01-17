@@ -1,5 +1,9 @@
 # NODE-Live-Project
 
+# Create an end point that send OTP to the users email (BE)
+Otp for user to send user email, dependency like `speakeasy` will be needed and install it.
+
+
 ## Google Sign-In Endpoint
 
 I have implemented a Google Sign-In endpoint to facilitate user authentication using OAuth2. This endpoint, accessible via a POST request to `/request`, generates an authorization URL for Google OAuth2 authentication. The generated URL includes necessary parameters for offline access, user profile information, and consent prompting.

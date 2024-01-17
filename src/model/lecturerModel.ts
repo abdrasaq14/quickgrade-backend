@@ -1,21 +1,8 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../database/databaseSqlite';
 import { v4 as uuidv4 } from 'uuid';
-import Courses from '../model/courseModel';
 
-class Lecturer extends Model {
-  id: any;
-  password: any;
-  static associate(models: any): void {
-    // Define relationships here
-    Lecturer.belongsToMany(Courses, {
-      through: 'LecturerCourses', // Create an intermediate table if needed
-      foreignKey: 'lecturerId',
-      otherKey: 'courseId',
-      as: 'courses',
-    });
-  }
-}
+class Lecturer extends Model {}
 
 Lecturer.init(
   {

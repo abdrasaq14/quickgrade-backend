@@ -1,6 +1,7 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../database/databaseSqlite';
+
 import Lecturer from '../model/lecturerModel';
+
+
 import express, { Request, Response, NextFunction} from 'express';
 import bcyrpt from 'bcryptjs';
 import lecturerModel from '../model/lecturerModel';
@@ -54,6 +55,7 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
 
 
 
+<<<<<<< HEAD
 export const lecturerLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { lecturerId, password } = req.body;
  
@@ -91,6 +93,8 @@ export const lecturerLogin = async (req: Request, res: Response, next: NextFunct
 
 
 
+=======
+>>>>>>> 9030e53bb91b62e73e5791475c1687a2654ced62
 export const updateLecturerPassword = async (req: Request, res: Response) => {
 
     const { userId } = req.params;

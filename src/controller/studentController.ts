@@ -1,5 +1,3 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../database/databaseSqlite';
 import Student from '../model/studentModel';
 import express, { Request, Response, NextFunction} from 'express';
 import Lecturer from '../model/lecturerModel';
@@ -47,6 +45,7 @@ return res.status(200).json({studentDetail: createdStudent});
 
 
 
+<<<<<<< HEAD
 
 
 export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -88,6 +87,8 @@ export const studentLogin = async (req: Request, res: Response, next: NextFuncti
 
 
 
+=======
+>>>>>>> 9030e53bb91b62e73e5791475c1687a2654ced62
 export const updateStudentPassword = async (req: Request, res: Response) => {
 
     const { userId } = req.params;
