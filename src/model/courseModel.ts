@@ -6,8 +6,10 @@ import Student from './studentModel';
 
 class Courses extends Model {
   static associate(models: any): void {
-    Courses.belongsToMany(Student, { through: 'StudentCourses', as: 'students'
-    });
+  
+    Courses.belongsToMany(Student, { through: 'StudentCourses', as: 'students' });
+
+    Courses.belongsToMany(Lecturer, { through: 'LecturerCourses', as: 'lecturers' });
   }
 }
 
@@ -31,14 +33,7 @@ Courses.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    lecturers: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references:{
-        model:'Lecturers',
-        key:'lecturerId'
-      }
-    },
+   
   },
   {
     sequelize,
@@ -47,4 +42,3 @@ Courses.init(
 );
 
 export default Courses;
-

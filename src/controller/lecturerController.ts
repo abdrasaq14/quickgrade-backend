@@ -1,18 +1,15 @@
 
 import Lecturer from '../model/lecturerModel';
-
-
 import express, { Request, Response, NextFunction} from 'express';
 import bcyrpt from 'bcryptjs';
-import lecturerModel from '../model/lecturerModel';
 
 
 
 export const lecturerSignup = async (req: Request, res: Response, next: NextFunction) => {
   try {
     
-    const { firstName, lastName, faculty, department, password, email } = req.body;
-    const existingLecturer = await lecturerModel.findOne({ where: { email } });
+    const { faculty, department, password, email } = req.body;
+    const existingLecturer = await Lecturer.findOne({ where: { email } });
 
     if (existingLecturer) {
       return res.status(400).json({
@@ -22,8 +19,6 @@ export const lecturerSignup = async (req: Request, res: Response, next: NextFunc
     const hashedPassword = await bcyrpt.hash(password, 12);
     
     const createdLecturer = await Lecturer.create({
-      firstName,
-      lastName,
       faculty,
       department,
       password: hashedPassword,
@@ -61,7 +56,7 @@ export const lecturerLogin = async (req: Request, res: Response, next: NextFunct
   
   try {
    
-    const existingLecturer = await lecturerModel.findOne({ where: { lecturerId } });
+    const existingLecturer = await Lecturer.findOne({ where: { lecturerId } });
 
     if (!existingLecturer) {
       return res.status(400).json({
