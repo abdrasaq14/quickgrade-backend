@@ -74,3 +74,35 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, totpToken } = req.body;
+
+    // Check if the email is present in the map
+    const totpData = totpSecretMap[email];
+
+    if (!totpData) {
+      res.status(401).json({ error: 'TOTP secret not found for the user' });
+      return;
+    }
+
+    const storedTOTPSecret = totpData.secret;
+    const user: Student | Lecturer = totpData.user;
+
+    const isValid = speakeasy.totp.verify({
+      secret: storedTOTPSecret,
+      encoding: 'base32',
+      token: totpToken,
+      window: 2,
+    });
+
+    if (isValid) {
+      res.status(200).json({ message: 'TOTP verification successful' });
+    } else {
+      res.status(401).json({ error: 'Invalid TOTP' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

@@ -15,7 +15,7 @@ import cors from 'cors';
 
 import indexRouter from './routes/index';
 
-import usersRouter from './routes/users';
+
 import otpRouter from './routes/otp';
 
 import oauthRouter from './routes/oauth';
@@ -57,8 +57,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
-
-app.use('/users', usersRouter);
 app.use('/otp', otpRouter);
 
 
