@@ -3,6 +3,7 @@ import express, {
   type Response,
   type NextFunction,
 } from 'express';
+
 import { config } from 'dotenv';
 import createError from 'http-errors';
 import path from 'path';
@@ -15,13 +16,11 @@ import cors from 'cors';
 
 import indexRouter from './routes/index';
 
-import usersRouter from './routes/users';
+//import usersRouter from './routes/users';
 import otpRouter from './routes/otp';
 
 import oauthRouter from './routes/oauth';
 import requestRouter from './routes/request';
-
-
 
 import studentRouter from './routes/studentsRoutes';
 import lecturerRouter from './routes/lecturersRoutes';
@@ -62,11 +61,8 @@ app.use('/users', usersRouter);
 app.use('/otp', otpRouter);
 
 
-
 app.use('/oauth', oauthRouter);
 app.use('/request', requestRouter);
-
-
 
 
 // catch 404 and forward to error handler
