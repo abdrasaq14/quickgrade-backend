@@ -4,7 +4,11 @@ import Courses from '../model/courseModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class Student extends Model {
-  password: any;
+
+  otpExpiration!: Date;
+  otp!: string;
+  isVerified!: boolean;
+
   static associate(models: any): void {
     Student.belongsToMany(Courses, {
       through: 'StudentCourses',
@@ -29,16 +33,6 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    otp: {
-      type: DataTypes.STRING,
-    },
-    otpExpiration: {
-      type: DataTypes.DATE,
-    },
-    isVerify: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
     faculty: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -47,7 +41,31 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-  },
+    otp: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    otpSecret: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    otpExpiration: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    resetPasswordToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    resetPasswordExpiration: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    }, 
   {
     sequelize,
     modelName: 'Student',
