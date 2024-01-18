@@ -12,7 +12,7 @@ router.get(
   function (req: Request, res: Response, next: NextFunction) {
     const { role } = req.params
     console.log('role', role)
-    res.json({ message: role })
+    res.json({ role })
   }
 )
 
