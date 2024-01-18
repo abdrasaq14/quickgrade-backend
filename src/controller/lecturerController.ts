@@ -31,6 +31,7 @@ export const lecturerSignup = async (
       })
       // sending employeeID  and password to student email
       if (!createdLecturer) {
+        console.log('Lecturer not created')
         res.json({
           failedSignup: 'Lecturer signup failed'
         })
@@ -47,6 +48,7 @@ export const lecturerSignup = async (
         })
         const lecturerDetail = await Lecturer.findOne({ where: { email } })
         if (!lecturerDetail) {
+          console.log('Lecturer not found after signup')
           res.json({ lecturerNotFoundError: 'Lecturer not found' })
         } else {
           // Update the student instance with TOTP details
@@ -69,15 +71,9 @@ export const lecturerSignup = async (
           }
 
           await transporter.sendMail(mailOptions)
-          if (!createdLecturer) {
-            console.error('Lecturer signup failed: Lecturer not created')
-            res.json({
-              failedSignup: 'Lecturer signup failed'
-            })
-          } else {
-            console.log('successs')
-            res.json({ successfulSignup: 'Lecturer signup successful' })
-          }
+
+          console.log('successs')
+          res.json({ successfulSignup: 'Lecturer signup successful' })
         }
       }
     }

@@ -33,6 +33,7 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
       })
 
       if (!createdStudent) {
+        console.log('student not created')
         res.json({
           failedSignup: 'Student signup failed'
         })
@@ -49,6 +50,7 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
         })
         const studentDetail = await Student.findOne({ where: { email } })
         if (!studentDetail) {
+          console.log('student not found after signup')
           res.json({ studentNotFoundError: 'student not found' })
         } else {
           // Update the student instance with TOTP details
@@ -71,15 +73,9 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
           }
 
           await transporter.sendMail(mailOptions)
-          if (!createdStudent) {
-            console.error('Student signup failed: Student not created')
-            res.json({
-              failedSignup: 'Student signup failed'
-            })
-          } else {
-            console.log('successs')
-            res.json({ successfulSignup: 'Student signup successful' })
-          }
+
+          console.log('successs')
+          res.json({ successfulSignup: 'Student signup successful' })
         }
       }
     }

@@ -1,34 +1,32 @@
-  {
-    "env": {
-      "browser": true,
-      "es2021": true
-    },
-    "extends": "standard-with-typescript",
-    "parserOptions": {
-      "ecmaVersion": "latest",
-      "sourceType": "module",
-      "parser": "@typescript-eslint/parser",
-      "plugins": ["@typescript-eslint"],
-      "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-      "project": "./tsconfig.json"
-    },
-    "ignorePatterns": [
-      "lib/app.js",
-      "lib/database/databaseSqlite.js",
-      "lib/model/courseModel.js",
-      "lib/model/studentCourseModel.js",
-      "lib/model/lecturerModel.js",
-      "lib/model/studentModel.js",
-      "lib/routes/request.js",
-      "lib/routes/oauth.js"
-
-    ],
-    "rules": {
-      // Add other rules if needed
-      "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/strict-boolean-expressions": "off",
-      "@typescript-eslint/prefer-nullish-coalescing": "off"
-    }
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": "standard-with-typescript",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": [
+    "lib/app.js",
+    "bin/www",
+    "lib/database/databaseSqlite.js",
+    "lib/model/courseModel.js",
+    "lib/model/studentCourseModel.js",
+    "lib/model/lecturerModel.js",
+    "lib/model/studentModel.js",
+    "lib/routes/request.js",
+    "lib/routes/oauth.js"
+  ],
+  "rules": {
+    // Add other rules if needed
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "off"
   }
-  
-
+}
