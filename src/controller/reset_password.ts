@@ -1,62 +1,75 @@
-// yourPasswordResetController.js
-import { type Request, type Response } from 'express'
-import speakeasy from 'speakeasy'
-import { differenceInMinutes } from 'date-fns'
-import bcrypt from 'bcryptjs'
-import otpSecretMap from '../utils/otpSecretMap'
+import express from 'express';
+import nodemailer from 'nodemailer';
+import Student from '../model/studentModel';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
-interface ResetPasswordRequest {
-  email: string
-  newPassword: string
-  otp: string
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'quickgradedecagon@gmail.com',
+    pass: 'tdynykegchtuzfog',
+  },
+});
+ 
+export const resetPassword = async (req: express.Request, res: express.Response): Promise<void> => {
+const { email } = req.body;
+const user = await Student.findOne({ where: { email } });
+ 
+if (!user) {
+   res.status(404).json({ error: 'User not found' });
+   return;
+}
+ 
+const token = crypto.randomBytes(20).toString('hex');
+user.resetPasswordToken = token;
+user.resetPasswordExpiration = new Date(Date.now() + 3600000); // 1 hour
+await user.save();
+ 
+const mailOptions = {
+   from: 'quickgradedecagon@gmail.com',
+   to: email,
+   subject: 'Password Reset',
+   text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://${req.headers.host}/reset/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`,
+};
+ 
+await transporter.sendMail(mailOptions);
+ 
+res.status(200).json({ message: 'An email has been sent to the address provided with further instructions.' });
+};
+
+
+export const resetPasswordToken = async (req: express.Request, res: express.Response): Promise<void> => {
+const { token } = req.params;
+const { password } = req.body;
+
+const user = await Student.findOne({ where: { resetPasswordToken: token } });
+
+if (!user) {
+  res
+    .status(404)
+    .json({ error: 'Password reset token is invalid or has expired.' });
+  return;
 }
 
-export const resetPassword = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { email, newPassword, otp } = req.body as ResetPasswordRequest
-
-    const storedSecretInfo = otpSecretMap[email]
-
-    if (!storedSecretInfo) {
-      res.status(400).json({ error: 'Invalid or expired OTP' })
-      return
-    }
-
-    // Verify OTP
-    const isValidOTP = speakeasy.totp.verify({
-      secret: storedSecretInfo.secret,
-      encoding: 'base32',
-      token: otp,
-      window: 1 // Allow 1-minute time drift
-    })
-
-    if (!isValidOTP) {
-      res.status(400).json({ error: 'Invalid or expired OTP' })
-      return
-    }
-
-    // Check OTP expiration time
-    const otpExpirationMinutes = 10
-    const otpCreationTime = storedSecretInfo.createdAt
-    const minutesDifference = differenceInMinutes(new Date(), otpCreationTime)
-
-    if (minutesDifference > otpExpirationMinutes) {
-      res.status(400).json({ error: 'OTP has expired' })
-      return
-    }
-
-    // Reset password (you might want to hash the password before storing it)
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
-    storedSecretInfo.user.password = hashedPassword
-    await storedSecretInfo.user.save()
-
-    // Remove OTP secret from the map after successful password reset
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete otpSecretMap[email]
-
-    res.status(200).json({ message: 'Password reset successful' })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Internal Server Error' })
-  }
+if (!user.resetPasswordExpiration || Date.now() > user.resetPasswordExpiration.getTime()) {
+  res
+    .status(401)
+    .json({ error: 'Password reset token is invalid or has expired.' });
+  return;
 }
+
+
+const hashedPassword = await bcrypt.hash(password, 12);
+user.password = hashedPassword;
+
+user.resetPasswordToken = null;
+user.resetPasswordExpiration = null;
+await user.save();
+
+res.status(200).json({ message: 'Your password has been reset!' });
+};

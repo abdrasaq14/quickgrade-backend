@@ -16,3 +16,11 @@ Make a POST request to `http://localhost:3000/request` to obtain the Google Sign
 Implemented the logic to generate otp for forget password which will parse the otp to the students' email address. This is accessuble using the route `http://localhost:3000/users/forgot-password`
 
 
+# password reset route
+`reset_pass/reset-password`
+
+# password reset change 
+`http://localhost:3000/reset_pass/reset/932432fc323c8e75d4c72bdaf675cfbc787e1e86`
+
+# To do 
+`put in a try and catch`
