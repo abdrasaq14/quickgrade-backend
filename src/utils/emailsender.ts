@@ -1,7 +1,4 @@
-import express from 'express';
-import nodemailer from 'nodemailer';
-
-const router = express.Router();
+import nodemailer from 'nodemailer'
 
 export const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -10,6 +7,6 @@ export const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: 'quickgradedecagon@gmail.com',
-    pass: 'tdynykegchtuzfog',
-  },
-});
+    pass: 'tdynykegchtuzfog'
+  }
+})
