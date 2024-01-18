@@ -1,11 +1,19 @@
-import express, { Request, Response, NextFunction} from 'express'; 
- 
- const router = express.Router();
+import express, {
+  type Request,
+  type Response,
+  type NextFunction
+} from 'express'
+
+const router = express.Router()
 
 /* GET home page. */
-router.get('/', function(req: Request, res: Response, next: NextFunction) {
-  res.render('index', { title: 'Express' });
-});
+router.get(
+  '/:role',
+  function (req: Request, res: Response, next: NextFunction) {
+    const { role } = req.params
+    console.log('role', role)
+    res.json({ message: role })
+  }
+)
 
-
-export default router;
+export default router

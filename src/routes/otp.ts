@@ -1,9 +1,10 @@
-import express from 'express';
-import  { sendOTP, verifyOTP } from '../controller/otp';
-const router = express.Router();
+import express from 'express'
+import { sendOTP, verifyOTP } from '../controller/otp'
+const router = express.Router()
 
-router.post('/send-otp', sendOTP);
-router.post('/verify-otp', verifyOTP);
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/send-otp', sendOTP)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/verify-otp', verifyOTP)
 
-
-export default router;
+export default router
