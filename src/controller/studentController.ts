@@ -2,7 +2,7 @@ import Student from '../model/studentModel';
 import express, { Request, Response, NextFunction} from 'express';
 import Lecturer from '../model/lecturerModel';
 import bcrypt from 'bcryptjs';
-//import StudentModel from '../model/studentModel'; // Import the missing StudentModel
+
 
 
 export const studentSignup = async (req: Request, res: Response, next: NextFunction) => {
@@ -40,12 +40,7 @@ return res.status(200).json({studentDetail: createdStudent});
       message: "Internal server error",
     });
   }
-}
-
-
-
-
-
+};
 
 export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { studentId, password } = req.body;

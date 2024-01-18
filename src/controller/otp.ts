@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import speakeasy from 'speakeasy';
 import Student from '../model/studentModel';
+import Lecturer from '../model/lecturerModel';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -14,7 +15,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendOTP = async (req: Request, res: Response): Promise<void> => {
+export const sendStudentOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email } = req.body;
 
@@ -63,7 +64,7 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
+export const verifyStudentOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, otp } = req.body;
 
@@ -85,6 +86,88 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ message: 'OTP verified successfully' });
 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const sendLecturerOTP = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    const lecturer = await Lecturer.findOne({ where: { email } });
+
+    if (!lecturer) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const totpSecret = speakeasy.generateSecret({ length: 20 });
+
+    // Update the student instance with TOTP details
+    await lecturer.update({
+      otpSecret: totpSecret.base32,
+      otp: speakeasy.totp({
+        secret: totpSecret.base32,
+        encoding: 'base32',
+      }),
+      otpExpiration: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+    });
+
+    const mailOptions = {
+      from: {
+        name: 'QuickGrade App',
+        address: 'quickgradedecagon@gmail.com',
+      },
+      to: email,
+      subject: 'Quick Grade App - Email Verification Code',
+      text: `TOTP: ${lecturer.otp}`,
+      html: `<h3>Hi there,
+      Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+      <h1>${lecturer.otp}</h1>
+      <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
+      you can safely ignore this email.
+      Best,
+      The QuickGrade Team</h3>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'TOTP sent successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const verifyLecturerOTP = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { email, otp } = req.body;
+
+    const lecturer = await Lecturer.findOne({ where: { email, otp } });
+
+    if (!lecturer) {
+      res.status(401).json({ error: 'Invalid OTP' });
+      return;
+    }
+
+    // Check if OTP is still valid (not expired)
+    const now = new Date();
+    if (now > lecturer.otpExpiration) {
+      res.status(401).json({ error: 'OTP has expired' });
+      return;
+    }
+
+    await lecturer.update({ isVerified: true });
+
+    res.status(200).json({ message: 'OTP verified successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
