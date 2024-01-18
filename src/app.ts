@@ -20,7 +20,8 @@ import oauthRouter from './routes/oauth'
 import requestRouter from './routes/request'
 import studentRouter from './routes/studentsRoutes'
 import lecturerRouter from './routes/lecturersRoutes'
-import passResetRouter from './routes/reset-password'
+import resetPasswordRouter from './routes/reset_pass'
+// import passResetRouter from './routes/reset-password'
 
 config()
 
@@ -57,7 +58,8 @@ app.use('/students', studentRouter)
 app.use('/lecturers', lecturerRouter)
 app.use('/oauth', oauthRouter)
 app.use('/request', requestRouter)
-app.use('/reset-password', passResetRouter)
+app.use('/reset_pass', resetPasswordRouter)
+// app.use('/reset-password', passResetRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
