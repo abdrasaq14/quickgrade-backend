@@ -21,7 +21,7 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
     const student = await Student.findOne({ where: { email } })
 
     if (!student) {
-      res.status(404).json({ error: 'User not found' })
+      res.json({ error: 'User not found' })
       return
     }
 

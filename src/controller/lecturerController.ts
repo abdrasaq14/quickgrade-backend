@@ -1,6 +1,7 @@
 import Lecturer from '../model/lecturerModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcyrpt from 'bcryptjs'
+import nodemailer from 'nodemailer'
 
 export const lecturerSignup = async (
   req: Request,
@@ -17,23 +18,67 @@ export const lecturerSignup = async (
       })
     } else {
       const hashedPassword = await bcyrpt.hash(password, 12)
+      const noOfLecturer = (await Lecturer.count() + 1).toString().padStart(4, '0')
+      const employeeID = `LT${faculty.toUpperCase().slice(0, 4)}/${noOfLecturer}`
+      console.log('employeeID', employeeID)
+
       const createdLecturer = await Lecturer.create({
         faculty,
         department,
         password: hashedPassword,
-        email
+        email,
+        employeeID
       })
-
+      // sending employeeID  and password to student email
       if (!createdLecturer) {
-        console.error('Lecturer signup failed: Lecturer not created')
         res.json({
           failedSignup: 'Lecturer signup failed'
         })
       } else {
-        res.json({
-
-          successfulSignup: 'Lecturer signup successful'
+        const transporter = nodemailer.createTransport({
+          service: 'Gmail',
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: 'quickgradedecagon@gmail.com',
+            pass: 'tdynykegchtuzfog'
+          }
         })
+        const lecturerDetail = await Lecturer.findOne({ where: { email } })
+        if (!lecturerDetail) {
+          res.json({ lecturerNotFoundError: 'Lecturer not found' })
+        } else {
+          // Update the student instance with TOTP details
+
+          const mailOptions = {
+            from: {
+              name: 'QuickGrade App',
+              address: 'quickgradedecagon@gmail.com'
+            },
+            to: email,
+            subject: 'Quick Grade App - Login Details',
+            text: 'Login Detail',
+            html: `<h3>Hi there,
+          Your Account has been successfully created. kindly find your login details below:</h3>
+          <h1> EmployeeID: ${lecturerDetail.dataValues.employeeID}</h1>
+          <h1> Password: ${lecturerDetail.dataValues.password}</h1>
+         
+          Best regards,
+          <h3>The QuickGrade Team</h3>`
+          }
+
+          await transporter.sendMail(mailOptions)
+          if (!createdLecturer) {
+            console.error('Lecturer signup failed: Lecturer not created')
+            res.json({
+              failedSignup: 'Lecturer signup failed'
+            })
+          } else {
+            console.log('successs')
+            res.json({ successfulSignup: 'Lecturer signup successful' })
+          }
+        }
       }
     }
   } catch (error: any) {
@@ -50,36 +95,38 @@ export const lecturerLogin = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { lecturerId, password } = req.body
+  console.log('req', req.body)
+  const { employeeID, password } = req.body
 
   try {
-    const existingLecturer = await Lecturer.findOne({ where: { lecturerId } })
+    const existingLecturer = await Lecturer.findOne({ where: { employeeID } })
 
     if (!existingLecturer) {
-      res.status(400).json({
-        message: 'Invalid lecturerId'
+      res.json({
+        lecturerNotFoundError: 'Invalid lecturerId'
       })
+      console.log('here')
     } else {
+      console.log('now')
       const isPasswordValid = await bcyrpt.compare(
         password,
         existingLecturer.dataValues.password
       )
       if (!isPasswordValid) {
         res.status(401).json({
-          message: 'Invalid password'
+          inValidPassword: 'Invalid password'
         })
       }
 
-      res.status(200).json({
-        lecturerId: existingLecturer.dataValues.id,
-        message: 'Login successful'
+      res.json({
+        successfulLogin: 'login successful'
       })
     }
   } catch (error: any) {
     console.error('Error during lecturer login:', error)
 
     res.status(500).json({
-      message: `Error: ${error}`
+      internalServerError: `Error: ${error}`
     })
   }
 }

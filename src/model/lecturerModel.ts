@@ -1,15 +1,15 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../database/databaseSqlite';
-import { v4 as uuidv4 } from 'uuid';
-import Courses from './courseModel';
+import { DataTypes, Model } from 'sequelize'
+import sequelize from '../database/databaseSqlite'
+import { v4 as uuidv4 } from 'uuid'
+import Courses from './courseModel'
 
 class Lecturer extends Model {
-  static associate(models: any): void {
+  static associate (models: any): void {
     // Define the many-to-many relationship with the Course model
     Lecturer.belongsToMany(Courses, {
       through: 'LecturerCourses',
-      as: 'courses',
-    });
+      as: 'courses'
+    })
   }
 }
 
@@ -19,40 +19,44 @@ Lecturer.init(
       type: DataTypes.UUID,
       defaultValue: () => uuidv4(),
       primaryKey: true,
-      allowNull: false,
+      allowNull: false
+    },
+    employeeID: {
+      type: DataTypes.STRING,
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     otp: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING
     },
     otpExpiration: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATE
     },
     isVerify: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: false
     },
     faculty: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     department: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
+      allowNull: false
+    }
   },
   {
     sequelize,
-    modelName: 'Lecturer',
-  },
-);
+    modelName: 'Lecturer'
+  }
+)
 
-export default Lecturer;
+export default Lecturer

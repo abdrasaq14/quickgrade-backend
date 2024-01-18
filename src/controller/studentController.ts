@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken'
 import Student from '../model/studentModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
+import nodemailer from 'nodemailer'
 
-// import StudentModel from '../model/studentModel'; // Import the missing StudentModel
 const secret: string = (process.env.secret ?? '')
 export const studentSignup = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -15,7 +15,7 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
     if (existingStudent) {
       console.log('user already exists')
       res.json({
-        existingStudentError: 'Lecturer already exists'
+        existingStudentError: 'Student already exists'
       })
     } else {
       console.log('enter password')
@@ -28,7 +28,8 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
         faculty,
         department,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        matricNo
       })
 
       if (!createdStudent) {
@@ -36,8 +37,50 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
           failedSignup: 'Student signup failed'
         })
       } else {
-        console.log('success')
-        res.json({ successfulSignup: createdStudent })
+        const transporter = nodemailer.createTransport({
+          service: 'Gmail',
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: 'quickgradedecagon@gmail.com',
+            pass: 'tdynykegchtuzfog'
+          }
+        })
+        const studentDetail = await Student.findOne({ where: { email } })
+        if (!studentDetail) {
+          res.json({ studentNotFoundError: 'student not found' })
+        } else {
+          // Update the student instance with TOTP details
+
+          const mailOptions = {
+            from: {
+              name: 'QuickGrade App',
+              address: 'quickgradedecagon@gmail.com'
+            },
+            to: email,
+            subject: 'Quick Grade App - Login Details',
+            text: 'Login Detail',
+            html: `<h3>Hi there,
+          Your Account has been successfully created. kindly find your login details below:</h3>
+          <h1> EmployeeID: ${studentDetail.dataValues.matricNo}</h1>
+          <h1> Password: ${studentDetail.dataValues.password}</h1>
+         
+          Best regards,
+          <h3>The QuickGrade Team</h3>`
+          }
+
+          await transporter.sendMail(mailOptions)
+          if (!createdStudent) {
+            console.error('Student signup failed: Student not created')
+            res.json({
+              failedSignup: 'Student signup failed'
+            })
+          } else {
+            console.log('successs')
+            res.json({ successfulSignup: 'Student signup successful' })
+          }
+        }
       }
     }
   } catch (error) {
@@ -49,20 +92,20 @@ export const studentSignup = async (req: Request, res: Response): Promise<void> 
 }
 
 export const studentLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { studentId, password } = req.body
+  const { matricNo, password } = req.body
   try {
-    const existingStudent = await Student.findOne({ where: { studentId } })
+    const existingStudent = await Student.findOne({ where: { matricNo } })
 
     if (!existingStudent) {
       res.status(404).json({
-        message: 'Student not found'
+        studentNotFoundError: 'Student not found'
       })
     } else {
       const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password)
 
       if (!isPasswordValid) {
         res.status(401).json({
-          message: 'Invalid password'
+          inValidPassword: 'Invalid password'
         })
       } else {
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
@@ -78,7 +121,7 @@ export const studentLogin = async (req: Request, res: Response, next: NextFuncti
     console.error('Error during student login:', error)
 
     res.status(500).json({
-      message: `Error: ${error}`
+      internalServerError: `Error: ${error}`
     })
   }
 }
