@@ -1,8 +1,11 @@
+import jwt from "jsonwebtoken";
 import Student from '../model/studentModel';
 import express, { Request, Response, NextFunction} from 'express';
 import Lecturer from '../model/lecturerModel';
 import bcrypt from 'bcryptjs';
 //import StudentModel from '../model/studentModel'; // Import the missing StudentModel
+
+const secret: any = process.env.secret
 
 
 export const studentSignup = async (req: Request, res: Response, next: NextFunction) => {
@@ -43,22 +46,21 @@ return res.status(200).json({studentDetail: createdStudent});
 }
 
 
-
-
-
-
 export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
-  const { studentId, password } = req.body;
+  
   try {
-    
+    const { studentId, password } = req.body;
+  
     const existingStudent = await Student.findOne({ where: { studentId } });
+
 
     if (!existingStudent) {
       return res.status(404).json({
         message: "Student not found",
       });
     }
- 
+  
+
     const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password);
     
     if (!isPasswordValid) {
@@ -67,8 +69,14 @@ export const studentLogin = async (req: Request, res: Response, next: NextFuncti
       });
     }
 
+    const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: "1h" });
+    
+
+    res.cookie('token', token, { httpOnly: true, secure: true });
+
     return res.status(200).json({
       studentDetail: existingStudent,
+      token: token,
       message: "Login successful",
     });
   } catch (error) {
@@ -79,8 +87,6 @@ export const studentLogin = async (req: Request, res: Response, next: NextFuncti
     });
   }
 };
-
-
 
 
 
