@@ -4,6 +4,7 @@ import Courses from '../model/courseModel';
 import { v4 as uuidv4 } from 'uuid';
 
 class Student extends Model {
+  studentId!: string;
   resetPasswordToken!: string | null;
   resetPasswordExpiration!: Date | null;
   otpExpiration!: Date;

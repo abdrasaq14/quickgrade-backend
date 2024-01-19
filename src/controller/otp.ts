@@ -3,17 +3,7 @@ import nodemailer from 'nodemailer';
 import speakeasy from 'speakeasy';
 import Student from '../model/studentModel';
 import Lecturer from '../model/lecturerModel';
-
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'quickgradedecagon@gmail.com',
-    pass: 'tdynykegchtuzfog',
-  },
-});
+import { transporter } from '../utils/emailsender';
 
 export const sendStudentOTP = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -48,7 +38,7 @@ export const sendStudentOTP = async (req: Request, res: Response): Promise<void>
       text: `TOTP: ${student.otp}`,
       html: `<h3>Hi there,
       Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
-      <h1>${student.otp}</h1>
+      <h1>${student.otp} </h1>
       <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
       you can safely ignore this email.
       Best,
