@@ -1,9 +1,10 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../database/databaseSqlite';
-import Courses from '../model/courseModel';
-import { v4 as uuidv4 } from 'uuid';
+import { DataTypes, Model } from 'sequelize'
+import sequelize from '../database/databaseSqlite'
+import Courses from '../model/courseModel'
+import { v4 as uuidv4 } from 'uuid'
 
 class Student extends Model {
+  email!: string;
   studentId!: string;
   resetPasswordToken!: string | null;
   resetPasswordExpiration!: Date | null;
@@ -12,11 +13,12 @@ class Student extends Model {
   isVerified!: boolean;
   password!: string;
 
-  static associate(models: any): void {
+
+  static associate (models: any): void {
     Student.belongsToMany(Courses, {
       through: 'StudentCourses',
-      as: 'courses',
-    });
+      as: 'courses'
+    })
   }
 }
 
@@ -26,53 +28,57 @@ Student.init(
       type: DataTypes.UUID,
       defaultValue: () => uuidv4(),
       primaryKey: true,
-      allowNull: false,
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
+    },
+    matricNo: {
+      type: DataTypes.STRING,
+      allowNull: false
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     faculty: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     department: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     otp: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true
     },
     otpSecret: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true
     },
     otpExpiration: {
       type: DataTypes.DATE,
-      allowNull: true,
+      allowNull: true
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: false
     },
     resetPasswordToken: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true
     },
     resetPasswordExpiration: {
       type: DataTypes.DATE,
-      allowNull: true,
-    },
-    }, 
+      allowNull: true
+    }
+  },
   {
     sequelize,
-    modelName: 'Student',
-  },
-);
+    modelName: 'Student'
+  }
+)
 
-export default Student;
+export default Student

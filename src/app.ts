@@ -13,7 +13,7 @@ import logger from 'morgan'
 import bodyParser from 'body-parser'
 
 import cors from 'cors'
-
+import session from 'express-session'
 import indexRouter from './routes/index'
 import otpRouter from './routes/otp'
 import oauthRouter from './routes/oauth'
@@ -35,6 +35,13 @@ sequelize
   })
 const app = express()
 
+app.use(
+  session({
+    secret: process.env.secret ?? '',
+    resave: false,
+    saveUninitialized: true
+  })
+)
 app.use(
   cors({
     origin: 'http://localhost:5173',

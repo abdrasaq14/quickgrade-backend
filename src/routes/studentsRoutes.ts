@@ -1,18 +1,18 @@
-import express, { Request, Response, NextFunction} from 'express'; 
-import { studentSignup, updateStudentPassword, studentLogin } from '../controller/studentController';
+import express from 'express'
+import { studentSignup, updateStudentPassword, studentLogin, verifyOTP, resetPassword, resetPasswordToken } from '../controller/studentController'
+const router = express.Router()
 
- 
- 
- const router = express.Router();
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/signup', studentSignup)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/login', studentLogin)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/verify-otp', verifyOTP)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/reset-password', resetPassword)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/reset-password:token', resetPasswordToken)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.put('/update-password/:userId', updateStudentPassword)
 
-
-
- router.post ('/signup', studentSignup);
- router.post('/login', studentLogin);
-
-
-
-// The route for updating the students's password
-router.put('/update-password/:userId', updateStudentPassword);
-
-export default router;
+export default router

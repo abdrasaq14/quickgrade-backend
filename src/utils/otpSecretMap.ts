@@ -1,14 +1,14 @@
 export interface OTPSecretInfo {
-  secret: string;
-  createdAt: Date;
+  secret: string
+  createdAt: Date
   user: {
-    password: string;
-    save: () => Promise<void>;
-  };
+    password: string
+    save: () => Promise<void>
+  }
 }
 
-export type OTPSecretMap = Record<string, OTPSecretInfo>;
+export type OTPSecretMap = Record<string, OTPSecretInfo>
 
-const otpSecretMap: OTPSecretMap = {};
+const otpSecretMap: OTPSecretMap = {}
 
-export default otpSecretMap;
+export default otpSecretMap
