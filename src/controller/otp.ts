@@ -1,27 +1,16 @@
-import { type Request, type Response } from 'express'
-import nodemailer from 'nodemailer'
+import { type Response } from 'express'
 import speakeasy from 'speakeasy'
 import Student from '../model/studentModel'
-
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'quickgradedecagon@gmail.com',
-    pass: 'tdynykegchtuzfog'
-  }
-})
-
-export const sendOTP = async (req: Request, res: Response): Promise<void> => {
+import { transporter } from '../utils/emailsender'
+import { type AuthenticatedRequest } from '../../extender'
+export const sendOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { email } = req.body
 
     const student = await Student.findOne({ where: { email } })
 
     if (!student) {
-      res.status(404).json({ error: 'User not found' })
+      res.json({ error: 'User not found' })
       return
     }
 
@@ -63,29 +52,29 @@ export const sendOTP = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
+export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { email, otp } = req.body
-
+    console.log('req.body', req.body)
+    const { otp } = req.body
+    const email = req.session.email
+    console.log('email', email)
     const student = await Student.findOne({ where: { email, otp } })
 
     if (!student) {
-      res.status(401).json({ error: 'Invalid OTP' })
-      return
+      res.json({ studentNotSignupError: 'User not signed up' })
+    } else {
+      const now = new Date()
+      if (now > student.otpExpiration) {
+        res.json({ expiredOtpError: 'OTP has expired' })
+        return
+      }
+
+      await student.update({ isVerified: true })
+
+      res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
-
-    // Check if OTP is still valid (not expired)
-    const now = new Date()
-    if (now > student.otpExpiration) {
-      res.status(401).json({ error: 'OTP has expired' })
-      return
-    }
-
-    await student.update({ isVerified: true })
-
-    res.status(200).json({ message: 'OTP verified successfully' })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error' })
+    res.json({ internalServerError: 'Internal Server Error' })
   }
 }
