@@ -1,11 +1,9 @@
-import jwt from 'jsonwebtoken'
-import Student from '../model/studentModel'
-import { type Request, type Response, type NextFunction } from 'express'
-import bcrypt from 'bcryptjs'
-import { transporter } from '../utils/emailsender'
-import { type AuthenticatedRequest } from '../../extender'
-import crypto from 'crypto'
-const secret: string = (process.env.secret ?? '')
+import Student from '../model/studentModel';
+import express, { Request, Response, NextFunction} from 'express';
+import Lecturer from '../model/lecturerModel';
+import bcrypt from 'bcryptjs';
+//import StudentModel from '../model/studentModel'; // Import the missing StudentModel
+
 
 export const studentSignup = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -33,105 +31,50 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
         matricNo
       })
 
-      if (!createdStudent) {
-        console.log('student not created')
-        res.json({
-          failedSignup: 'Student signup failed'
-        })
-      } else {
-        const student = await Student.findOne({ where: { email } })
-
-        if (!student) {
-          res.json({ studentNotFoundError: 'student record not found' })
-          return
-        }
-
-        const studentDetail = await Student.findOne({ where: { email } })
-        if (!studentDetail) {
-          console.log('student not found after signup')
-          res.json({ studentNotFoundError: 'student not found' })
-        } else {
-          req.session.email = email
-          const mailOptions = {
-            from: {
-              name: 'QuickGrade App',
-              address: 'quickgradedecagon@gmail.com'
-            },
-            to: email,
-            subject: 'Quick Grade App - Login Details',
-            text: 'Login Detail',
-            html: `Hi there,
-          Your Account has been successfully created. kindly find your login details below:
-          <h3> MatricNo: ${studentDetail.dataValues.matricNo}</h3>
-          <h3> Password: ${password}</h3>
-
-          Best regards,<br>
-          <h5>The QuickGrade Team</h5>`
-          }
-
-          await transporter.sendMail(mailOptions)
-          console.log('successs')
-          res.json({ successfulSignup: 'Student signup successful' })
-          //   const totpSecret = speakeasy.generateSecret({ length: 20 })
-
-          //   // Update the student instance with TOTP details
-          //   await student.update({
-          //     otpSecret: totpSecret.base32,
-          //     otp: speakeasy.totp({
-          //       secret: totpSecret.base32,
-          //       encoding: 'base32'
-          //     }),
-          //     otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-          //   })
-
-          //   const mailOptions = {
-          //     from: {
-          //       name: 'QuickGrade App',
-          //       address: 'quickgradedecagon@gmail.com'
-          //     },
-          //     to: email,
-          //     subject: 'Quick Grade App - Email Verification Code',
-          //     text: `TOTP: ${student.otp}`,
-          //     html: `<h3>Hi there,
-          // Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
-          // <h1>${student.otp}</h1>
-          // <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
-          // you can safely ignore this email.
-          // Best,
-          // The QuickGrade Team</h3>`
-          //   }
-        }
-      }
+    if (!createdStudent) {
+        return res.status(400).json({
+            message: "Student signup failed",
+        });
     }
-  } catch (error) {
-    console.error('Error creating student: ', error)
-    res.json({
-      InternaServerError: 'Internal server error'
-    })
+return res.status(200).json({studentDetail: createdStudent});
+    
+  }catch (error) {
+    console.error("Error creating student: ", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 }
 
-export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+
+
+
+
+export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const { studentId, password } = req.body;
   try {
-    console.log('req.body', req.body)
-    const { otp } = req.body
-    const email = req.session.email
-    console.log('email', email)
-    const student = await Student.findOne({ where: { email, otp } })
+    
+    const existingStudent = await Student.findOne({ where: { studentId } });
 
-    if (!student) {
-      res.json({ studentNotSignupError: 'User not signed up' })
-    } else {
-      const now = new Date()
-      if (now > student.otpExpiration) {
-        res.json({ expiredOtpError: 'OTP has expired' })
-        return
-      }
-
-      await student.update({ isVerified: true })
-
-      res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
+    if (!existingStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
     }
+ 
+    const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
+    return res.status(200).json({
+      studentDetail: existingStudent,
+      message: "Login successful",
+    });
   } catch (error) {
     console.error(error)
     res.json({ internalServerError: 'Internal Server Error' })
