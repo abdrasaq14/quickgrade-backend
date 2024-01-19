@@ -21,7 +21,7 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
       })
     } else {
       const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0')
-      const matricNo = `${faculty.toUpperCase().slice(0, 4)}/${department.toUpperCase().slice(0, 4)}/${noOfStudent}`
+      const matricNo = `${faculty.toUpperCase().slice(0, 3)}/${department.toUpperCase().slice(0, 3)}/${noOfStudent}`
 
       const hashedPassword = await bcrypt.hash(password, 12)
 
@@ -60,13 +60,13 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
             to: email,
             subject: 'Quick Grade App - Login Details',
             text: 'Login Detail',
-            html: `<h3>Hi there,
-          Your Account has been successfully created. kindly find your login details below:</h3>
-          <h1> MatricNo: ${studentDetail.dataValues.matricNo}</h1>
-          <h1> Password: ${password}</h1>
+            html: `Hi there,
+          Your Account has been successfully created. kindly find your login details below:
+          <h3> MatricNo: ${studentDetail.dataValues.matricNo}</h3>
+          <h3> Password: ${password}</h3>
 
-          Best regards,
-          <h3>The QuickGrade Team</h3>`
+          Best regards,<br>
+          <h5>The QuickGrade Team</h5>`
           }
 
           await transporter.sendMail(mailOptions)
@@ -160,6 +160,7 @@ export const studentLogin = async (req: AuthenticatedRequest, res: Response, nex
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
 
         res.cookie('token', token, { httpOnly: true, secure: true })
+        // pass in the token into the sessions
 
         res.json({
           successfulLogin: 'Login successful'
@@ -189,6 +190,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
   user.resetPasswordExpiration = new Date(Date.now() + 3600000) // 1 hour
   await user.save()
 
+  
   const mailOptions = {
     from: 'quickgradedecagon@gmail.com',
     to: email,
