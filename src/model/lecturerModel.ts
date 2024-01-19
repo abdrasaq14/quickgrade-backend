@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import Courses from './courseModel'
 
 class Lecturer extends Model {
+  otp!: string
+  otpExpiration!: Date
   static associate (models: any): void {
     // Define the many-to-many relationship with the Course model
     Lecturer.belongsToMany(Courses, {

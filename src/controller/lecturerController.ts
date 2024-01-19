@@ -1,12 +1,12 @@
 import Lecturer from '../model/lecturerModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcyrpt from 'bcryptjs'
-import nodemailer from 'nodemailer'
+import type { AuthenticatedRequest } from '../../extender'
+import { transporter } from '../utils/emailsender'
 
 export const lecturerSignup = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+  req: AuthenticatedRequest,
+  res: Response
 ): Promise<void> => {
   try {
     const { faculty, department, password, email } = req.body
@@ -36,44 +36,71 @@ export const lecturerSignup = async (
           failedSignup: 'Lecturer signup failed'
         })
       } else {
-        const transporter = nodemailer.createTransport({
-          service: 'Gmail',
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
-          auth: {
-            user: 'quickgradedecagon@gmail.com',
-            pass: 'tdynykegchtuzfog'
-          }
-        })
+        req.session.email = email
+        console.log('req.session.email', req.session.email)
         const lecturerDetail = await Lecturer.findOne({ where: { email } })
-        if (!lecturerDetail) {
-          console.log('Lecturer not found after signup')
-          res.json({ lecturerNotFoundError: 'Lecturer not found' })
-        } else {
-          // Update the student instance with TOTP details
 
-          const mailOptions = {
-            from: {
-              name: 'QuickGrade App',
-              address: 'quickgradedecagon@gmail.com'
-            },
-            to: email,
-            subject: 'Quick Grade App - Login Details',
-            text: 'Login Detail',
-            html: `<h3>Hi there,
+        if (!lecturerDetail) {
+          res.json({ lecturerNotFoundError: 'student record not found' })
+        } else {
+          const lecturerDetail = await Lecturer.findOne({ where: { email } })
+          if (!lecturerDetail) {
+            console.log('Lecturer not found after signup')
+            res.json({ lecturerNotFoundError: 'Lecturer not found' })
+          } else {
+            const mailOptions = {
+              from: {
+                name: 'QuickGrade App',
+                address: 'quickgradedecagon@gmail.com'
+              },
+              to: email,
+              subject: 'Quick Grade App - Login Details',
+              text: 'Login Detail',
+              html: `<h3>Hi there,
           Your Account has been successfully created. kindly find your login details below:</h3>
           <h1> EmployeeID: ${lecturerDetail.dataValues.employeeID}</h1>
-          <h1> Password: ${lecturerDetail.dataValues.password}</h1>
-         
+          <h1> Password: ${password}</h1>
+
           Best regards,
           <h3>The QuickGrade Team</h3>`
+            }
+
+            await transporter.sendMail(mailOptions)
+            console.log('successs')
+            req.session.email = email
+            res.json({ successfulSignup: 'Lecturer signup successful' })
+
+            //   const totpSecret = speakeasy.generateSecret({ length: 20 })
+
+            //   // Update the student instance with TOTP details
+            //   await lecturerDetail.update({
+            //     otpSecret: totpSecret.base32,
+            //     otp: speakeasy.totp({
+            //       secret: totpSecret.base32,
+            //       encoding: 'base32'
+            //     }),
+            //     otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+            //   })
+
+            //   const mailOptions = {
+            //     from: {
+            //       name: 'QuickGrade App',
+            //       address: 'quickgradedecagon@gmail.com'
+            //     },
+            //     to: email,
+            //     subject: 'Quick Grade App - Email Verification Code',
+            //     text: `TOTP: ${lecturerDetail.otp}`,
+            //     html: `<h3>Hi there,
+            // Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+            // <h1>${lecturerDetail.otp}</h1>
+            // <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
+            // you can safely ignore this email.
+            // Best,
+            // The QuickGrade Team</h3>`
+            //   }
+
+            //   await transporter.sendMail(mailOptions)
           }
-
-          await transporter.sendMail(mailOptions)
-
-          console.log('successs')
-          res.json({ successfulSignup: 'Lecturer signup successful' })
         }
       }
     }
@@ -101,9 +128,7 @@ export const lecturerLogin = async (
       res.json({
         lecturerNotFoundError: 'Invalid lecturerId'
       })
-      console.log('here')
     } else {
-      console.log('now')
       const isPasswordValid = await bcyrpt.compare(
         password,
         existingLecturer.dataValues.password
@@ -124,6 +149,33 @@ export const lecturerLogin = async (
     res.status(500).json({
       internalServerError: `Error: ${error}`
     })
+  }
+}
+
+export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    console.log('req.body', req.body)
+    const { otp } = req.body
+    const email = req.session.email
+    console.log('email', email)
+    const lecturerDetail = await Lecturer.findOne({ where: { email, otp } })
+
+    if (!lecturerDetail) {
+      res.json({ lecturerNotSignupError: 'User not signed up' })
+    } else {
+      const now = new Date()
+      if (now > lecturerDetail.otpExpiration) {
+        res.json({ expiredOtpError: 'OTP has expired' })
+        return
+      }
+
+      await lecturerDetail.update({ isVerified: true })
+
+      res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
+    }
+  } catch (error) {
+    console.error(error)
+    res.json({ internalServerError: 'Internal Server Error' })
   }
 }
 

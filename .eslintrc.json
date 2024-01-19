@@ -15,6 +15,7 @@
   "ignorePatterns": [
     "lib/app.js",
     "bin/www",
+    "extender.d.ts",
     "lib/database/databaseSqlite.js",
     "lib/model/courseModel.js",
     "lib/model/studentCourseModel.js",
