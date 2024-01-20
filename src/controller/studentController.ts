@@ -60,10 +60,10 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
             to: email,
             subject: 'Quick Grade App - Login Details',
             text: 'Login Detail',
-            html: `Hi there,
+            html: `Hi there,<br>
           Your Account has been successfully created. kindly find your login details below:
-          <h3> MatricNo: ${studentDetail.dataValues.matricNo}</h3>
-          <h3> Password: ${password}</h3>
+          <h5> MatricNo: ${studentDetail.dataValues.matricNo}</h5>
+          <h5> Password: ${password}</h5>
 
           Best regards,<br>
           <h5>The QuickGrade Team</h5>`
