@@ -31,10 +31,78 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
         matricNo
       })
 
-    if (!createdStudent) {
-        return res.status(400).json({
-            message: "Student signup failed",
-        });
+
+      if (!createdStudent) {
+        console.log('student not created')
+        res.json({
+          failedSignup: 'Student signup failed'
+        })
+      } else {
+        const student = await Student.findOne({ where: { email } })
+
+        if (!student) {
+          res.json({ studentNotFoundError: 'student record not found' })
+          return
+        }
+
+        const studentDetail = await Student.findOne({ where: { email } })
+        if (!studentDetail) {
+          console.log('student not found after signup')
+          res.json({ studentNotFoundError: 'student not found' })
+        } else {
+          req.session.email = email
+          const mailOptions = {
+            from: {
+              name: 'QuickGrade App',
+              address: 'quickgradedecagon@gmail.com'
+            },
+            to: email,
+            subject: 'Quick Grade App - Login Details',
+            text: 'Login Detail',
+            html: `Hi there,<br>
+          Your Account has been successfully created. kindly find your login details below:
+          <h5> MatricNo: ${studentDetail.dataValues.matricNo}</h5>
+          <h5> Password: ${password}</h5>
+
+          Best regards,<br>
+          <h5>The QuickGrade Team</h5>`
+          }
+
+          await transporter.sendMail(mailOptions)
+          console.log('successs')
+          res.json({ successfulSignup: 'Student signup successful' })
+          //   const totpSecret = speakeasy.generateSecret({ length: 20 })
+
+          //   // Update the student instance with TOTP details
+          //   await student.update({
+          //     otpSecret: totpSecret.base32,
+          //     otp: speakeasy.totp({
+          //       secret: totpSecret.base32,
+          //       encoding: 'base32'
+          //     }),
+          //     otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+          //   })
+
+          //   const mailOptions = {
+          //     from: {
+          //       name: 'QuickGrade App',
+          //       address: 'quickgradedecagon@gmail.com'
+          //     },
+          //     to: email,
+          //     subject: 'Quick Grade App - Email Verification Code',
+          //     text: `TOTP: ${student.otp}`,
+          //     html: `<h3>Hi there,
+          // Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+          // <h1>${student.otp}</h1>
+          // <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
+          // you can safely ignore this email.
+          // Best,
+          // The QuickGrade Team</h3>`
+          //   }
+        }
+      }
+
+   
     }
 return res.status(200).json({studentDetail: createdStudent});
     
