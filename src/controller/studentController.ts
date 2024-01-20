@@ -1,11 +1,9 @@
-import jwt from 'jsonwebtoken'
-import Student from '../model/studentModel'
-import { type Request, type Response, type NextFunction } from 'express'
-import bcrypt from 'bcryptjs'
-import { transporter } from '../utils/emailsender'
-import { type AuthenticatedRequest } from '../../extender'
-import crypto from 'crypto'
-const secret: string = (process.env.secret ?? '')
+import Student from '../model/studentModel';
+import express, { Request, Response, NextFunction} from 'express';
+import Lecturer from '../model/lecturerModel';
+import bcrypt from 'bcryptjs';
+//import StudentModel from '../model/studentModel'; // Import the missing StudentModel
+
 
 export const studentSignup = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -32,6 +30,7 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
         password: hashedPassword,
         matricNo
       })
+
 
       if (!createdStudent) {
         console.log('student not created')
@@ -102,36 +101,48 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
           //   }
         }
       }
+
+   
     }
-  } catch (error) {
-    console.error('Error creating student: ', error)
-    res.json({
-      InternaServerError: 'Internal server error'
-    })
+return res.status(200).json({studentDetail: createdStudent});
+    
+  }catch (error) {
+    console.error("Error creating student: ", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 }
 
-export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+
+
+
+
+
+export const studentLogin = async (req: Request, res: Response, next: NextFunction) => {
+  const { studentId, password } = req.body;
   try {
-    console.log('req.body', req.body)
-    const { otp } = req.body
-    const email = req.session.email
-    console.log('email', email)
-    const student = await Student.findOne({ where: { email, otp } })
+    
+    const existingStudent = await Student.findOne({ where: { studentId } });
 
-    if (!student) {
-      res.json({ studentNotSignupError: 'User not signed up' })
-    } else {
-      const now = new Date()
-      if (now > student.otpExpiration) {
-        res.json({ expiredOtpError: 'OTP has expired' })
-        return
-      }
-
-      await student.update({ isVerified: true })
-
-      res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
+    if (!existingStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
     }
+ 
+    const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid password",
+      });
+    }
+
+    return res.status(200).json({
+      studentDetail: existingStudent,
+      message: "Login successful",
+    });
   } catch (error) {
     console.error(error)
     res.json({ internalServerError: 'Internal Server Error' })
