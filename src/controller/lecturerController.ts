@@ -1,8 +1,9 @@
 import Lecturer from '../model/lecturerModel'
 import { type Request, type Response, type NextFunction } from 'express'
-import bcyrpt from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import type { AuthenticatedRequest } from '../../extender'
 import { transporter } from '../utils/emailsender'
+import crypto from 'crypto'
 
 export const lecturerSignup = async (
   req: AuthenticatedRequest,
@@ -17,7 +18,7 @@ export const lecturerSignup = async (
         existingLecturerError: 'Lecturer already exists'
       })
     } else {
-      const hashedPassword = await bcyrpt.hash(password, 12)
+      const hashedPassword = await bcrypt.hash(password, 12)
       const noOfLecturer = (await Lecturer.count() + 1).toString().padStart(4, '0')
       const employeeID = `LT${faculty.toUpperCase().slice(0, 4)}/${noOfLecturer}`
       console.log('employeeID', employeeID)
@@ -29,7 +30,7 @@ export const lecturerSignup = async (
         email,
         employeeID
       })
-      // sending employeeID  and password to student email
+      // sending employeeID  and password to Lecturer email
       if (!createdLecturer) {
         console.log('Lecturer not created')
         res.json({
@@ -41,7 +42,7 @@ export const lecturerSignup = async (
         const lecturerDetail = await Lecturer.findOne({ where: { email } })
 
         if (!lecturerDetail) {
-          res.json({ lecturerNotFoundError: 'student record not found' })
+          res.json({ lecturerNotFoundError: 'Lecturer record not found' })
         } else {
           const lecturerDetail = await Lecturer.findOne({ where: { email } })
           if (!lecturerDetail) {
@@ -72,7 +73,7 @@ export const lecturerSignup = async (
 
             //   const totpSecret = speakeasy.generateSecret({ length: 20 })
 
-            //   // Update the student instance with TOTP details
+            //   // Update the Lecturer instance with TOTP details
             //   await lecturerDetail.update({
             //     otpSecret: totpSecret.base32,
             //     otp: speakeasy.totp({
@@ -129,7 +130,7 @@ export const lecturerLogin = async (
         lecturerNotFoundError: 'Invalid lecturerId'
       })
     } else {
-      const isPasswordValid = await bcyrpt.compare(
+      const isPasswordValid = await bcrypt.compare(
         password,
         existingLecturer.dataValues.password
       )
@@ -152,6 +153,62 @@ export const lecturerLogin = async (
   }
 }
 
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body
+  const user = await Lecturer.findOne({ where: { email } })
+
+  if (!user) {
+    res.json({ LecturerNotFoundError: 'User not found' })
+    return
+  } else {
+    const token = crypto.randomBytes(20).toString('hex')
+    user.resetPasswordToken = token
+    user.resetPasswordExpiration = new Date(Date.now() + 3600000) // 1 hour
+    await user.save()
+
+    const mailOptions = {
+      from: 'quickgradedecagon@gmail.com',
+      to: email,
+      subject: 'Password Reset',
+      // text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://${req.headers.host}/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://localhost:5173/Lecturers/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
+    }
+
+    await transporter.sendMail(mailOptions)
+  }
+
+  res.json({ linkSentSuccessfully: 'An email has been sent to the address provided with further instructions.' })
+}
+
+export const resetPasswordToken = async (req: Request, res: Response): Promise<void> => {
+  const { token } = req.params
+  const { password } = req.body
+
+  const user = await Lecturer.findOne({ where: { resetPasswordToken: token } })
+
+  if (!user) {
+    res
+      .status(404)
+      .json({ error: 'Password reset token is invalid or has expired.' })
+    return
+  }
+
+  if (!user.resetPasswordExpiration || Date.now() > user.resetPasswordExpiration.getTime()) {
+    res
+      .status(401)
+      .json({ error: 'Password reset token is invalid or has expired.' })
+    return
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12)
+  user.password = hashedPassword
+
+  user.resetPasswordToken = null
+  user.resetPasswordExpiration = null
+  await user.save()
+
+  res.json({ message: 'Your password has been reset!' })
+}
 export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     console.log('req.body', req.body)
