@@ -3,4 +3,5 @@ lib/
 yarn.lock
 yarn-error.log
 .prettierrc
+lib
 database.sqlite
