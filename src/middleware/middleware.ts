@@ -2,14 +2,14 @@ import { type AuthenticatedRequest } from '../../extender'
 import { type Response, type NextFunction } from 'express'
 
 export async function authenticate (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
-  const email = req.session.email || req.user
+  const email = req.session.email
   console.log('email', email)
   try {
     if (!email) {
       console.log('no email')
       res.json({ unathorized: 'unathorized' })
     } else {
-      req.session.email = email
+      req.user = email
       next()
     }
   } catch (error) {

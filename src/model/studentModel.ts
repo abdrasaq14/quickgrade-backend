@@ -4,15 +4,14 @@ import Courses from '../model/courseModel'
 import { v4 as uuidv4 } from 'uuid'
 
 class Student extends Model {
-  email!: string;
-  studentId!: string;
-  resetPasswordToken!: string | null;
-  resetPasswordExpiration!: Date | null;
-  otpExpiration!: Date;
-  otp!: string;
-  isVerified!: boolean;
-  password!: string;
-
+  email!: string
+  studentId!: string
+  resetPasswordToken!: string | null
+  resetPasswordExpiration!: Date | null
+  otpExpiration!: Date
+  otp!: string
+  isVerified!: boolean
+  password!: string
 
   static associate (models: any): void {
     Student.belongsToMany(Courses, {

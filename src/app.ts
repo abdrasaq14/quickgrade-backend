@@ -10,8 +10,6 @@ import path from 'path'
 import cookieParser from 'cookie-parser'
 import sequelize from './database/databaseSqlite'
 import logger from 'morgan'
-import bodyParser from 'body-parser'
-
 import cors from 'cors'
 import session from 'express-session'
 import indexRouter from './routes/index'
@@ -52,7 +50,6 @@ app.use(
 // view engine setup
 app.set('views', path.join(__dirname, '../', 'views'))
 app.set('view engine', 'ejs')
-app.use(bodyParser.json())
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
