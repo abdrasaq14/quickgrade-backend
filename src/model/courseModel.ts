@@ -33,6 +33,14 @@ Courses.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    session: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    semester: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
    
   },
   {
