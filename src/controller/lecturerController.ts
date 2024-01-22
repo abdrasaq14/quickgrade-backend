@@ -261,3 +261,27 @@ export const updateLecturerPassword = async (req: Request, res: Response): Promi
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
+
+
+export const getLecturerProfile = async (req: Request, res: Response): 
+Promise<void> => {
+  try {
+    // Assuming that the authenticated lecturer's details are stored in req.user after authentication
+    const lecturerProfile = req.user;
+
+    // You can customize the data you want to include in the profile response
+    const profileResponse = {
+      lecturerId: lecturerProfile.lecturerId,
+      employeeID: lecturerProfile.employeeID,
+      email: lecturerProfile.email,
+      faculty: lecturerProfile.faculty,
+      department: lecturerProfile.department,
+      // Add more fields as needed
+    };
+
+    res.status(200).json(profileResponse);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
