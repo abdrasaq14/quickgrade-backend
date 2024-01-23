@@ -12,20 +12,16 @@ Grading.init(
       primaryKey: true,
       allowNull: false
     },
-    examId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
     studentId: {
-      type: DataTypes.UUID,
-      allowNull: false
-    },
-    lecturerId: {
       type: DataTypes.UUID,
       allowNull: false
     },
     responseId: {
       type: DataTypes.UUID,
+      allowNull: true
+    },
+    department: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     grade: {

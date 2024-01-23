@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express'
-import Exam from '../model/examModel'
+import Grading from '../model/gradingModel'
 
 const gradingCriteria = {
   A: { min: 70, max: 100 },
@@ -9,9 +9,9 @@ const gradingCriteria = {
   F: { min: 0, max: 39 }
 }
 
-function calculateGrade (totalScore: number): string {
+function calculateGrade (gradeValue: number): string {
   for (const [grade, range] of Object.entries(gradingCriteria)) {
-    if (totalScore >= range.min && totalScore <= range.max) {
+    if (gradeValue >= range.min && gradeValue <= range.max) {
       return grade
     }
   }
@@ -20,16 +20,16 @@ function calculateGrade (totalScore: number): string {
 
 export const grades = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { studentId, examId, totalScore, examDuration, courseId, questionId, semester, session, faculty, department, examDate } = req.body
+    const { gradingId, studentId, responseId, department, grade } = req.body
 
-    if (!studentId || !examId || totalScore === undefined || isNaN(totalScore) || !examDuration || !courseId || !questionId || !semester || !session || !faculty || !department || !examDate) {
+    if (!gradingId || !studentId || !responseId || !department || !grade) {
       res.status(400).json({ error: 'Invalid input data' })
       return
     }
 
-    const grade = calculateGrade(totalScore)
+    const studentGrade = calculateGrade(grade)
 
-    const gradeData = await Exam.create({ studentId, examId, examDuration, courseId, questionId, semester, session, faculty, department, examDate, totalScore, grade })
+    const gradeData = await Grading.create({ gradingId, studentId, responseId, department, grade: studentGrade })
     console.log(gradeData)
 
     res.status(200).json(gradeData)
