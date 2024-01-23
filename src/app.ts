@@ -19,6 +19,7 @@ import requestRouter from './routes/request'
 import studentRouter from './routes/studentsRoutes'
 import lecturerRouter from './routes/lecturersRoutes'
 import resetPasswordRouter from './routes/reset_pass'
+import gradeRouter from './routes/grade'
 // import passResetRouter from './routes/reset-password'
 
 config()
@@ -63,6 +64,7 @@ app.use('/lecturers', lecturerRouter)
 app.use('/oauth', oauthRouter)
 app.use('/request', requestRouter)
 app.use('/reset_pass', resetPasswordRouter)
+app.use('/results', gradeRouter)
 // app.use('/reset-password', passResetRouter)
 
 // catch 404 and forward to error handler
