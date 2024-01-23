@@ -123,13 +123,11 @@ Exam.init(
       allowNull: true,
       defaultValue: null
     },
-<<<<<<< HEAD
     totalNoOfQuestions: {
-      type: DataTypes.INTEGER,
-=======
+      type: DataTypes.INTEGER
+    },
     grade: {
       type: DataTypes.STRING,
->>>>>>> 006a5c6 (grade-result)
       allowNull: false
     }
   },
