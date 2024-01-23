@@ -1,15 +1,17 @@
-import express from 'express';
+import express from 'express'
 // import express, { type Response } from 'express'
 // import express from 'express'
-import  { sendStudentOTP, verifyStudentOTP, sendLecturerOTP, verifyLecturerOTP } from '../controller/otp';
-import { type AuthenticatedRequest } from '../../extender';
+import { sendStudentOTP, verifyStudentOTP, sendLecturerOTP, verifyLecturerOTP } from '../controller/otp'
 
-const router = express.Router();
+const router = express.Router()
 
-router.post('/sendStudent-otp',  sendStudentOTP);
-router.post('/verifyStudent-otp', verifyStudentOTP);
-router.post('/sendLecturer-otp', sendLecturerOTP);
-router.post('/verifyLecturer-otp', verifyLecturerOTP);
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/sendStudent-otp', sendStudentOTP)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/verifyStudent-otp', verifyStudentOTP)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/sendLecturer-otp', sendLecturerOTP)
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/verifyLecturer-otp', verifyLecturerOTP)
 
-
-export default router;
+export default router

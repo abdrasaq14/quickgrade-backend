@@ -44,6 +44,7 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
           res.json({ studentNotFoundError: 'student record not found' })
         } else {
           req.session.email = email
+
           const totpSecret = speakeasy.generateSecret({ length: 20 })
 
           // Update the student instance with TOTP details
@@ -111,12 +112,12 @@ export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promi
   try {
     console.log('req.body', req.body)
     const { otp } = req.body
-    const email = req.user
-    console.log('email', email)
+
     const student = await Student.findOne({ where: { otp } })
+    const email = student?.dataValues.email
     console.log('student', student)
     if (!student) {
-      res.json({ InvalidOtp: 'Invalid otp' })
+      res.json({ invalidOtp: 'Invalid otp' })
     } else {
       const now = new Date()
       if (now > student.otpExpiration) {
@@ -137,7 +138,7 @@ export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promi
         html: `<h3>Hi there,
           Your Account has been successfully created and Email verification is successful. kindly find your login details below:</h3>
           <h1> MatricNo: ${student.dataValues.matricNo}</h1>
-          <h1> Password: ${student.dataValues.password}</h1>
+          
 
           Best regards,
           <h3>The QuickGrade Team</h3>`
@@ -145,7 +146,7 @@ export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promi
 
       await transporter.sendMail(mailOptions)
       console.log('successs')
-      res.json({ successfulSignup: 'Student signup successful' })
+      // res.json({ successfulSignup: 'Student signup successful' })
       res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
   } catch (error) {
@@ -198,7 +199,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
   const user = await Student.findOne({ where: { email } })
 
   if (!user) {
-    res.json({ studentNotFoundError: 'User not found' })
+    res.json({ userNotFoundError: 'User not found' })
     return
   } else {
     const token = crypto.randomBytes(20).toString('hex')
@@ -211,7 +212,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       to: email,
       subject: 'Password Reset',
       // text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://${req.headers.host}/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
-      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://localhost:3000/students/verify-otp/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://localhost:5173/students/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
     }
 
     await transporter.sendMail(mailOptions)
@@ -229,14 +230,14 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
   if (!user) {
     res
       .status(404)
-      .json({ error: 'Password reset token is invalid or has expired.' })
+      .json({ invalidPasswordResetToken: 'Password reset token is invalid or has expired.' })
     return
   }
 
   if (!user.resetPasswordExpiration || Date.now() > user.resetPasswordExpiration.getTime()) {
     res
       .status(401)
-      .json({ error: 'Password reset token is invalid or has expired.' })
+      .json({ tokenExpired: 'Password reset token is invalid or has expired.' })
     return
   }
 
@@ -247,7 +248,7 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
   user.resetPasswordExpiration = null
   await user.save()
 
-  res.json({ message: 'Your password has been reset!' })
+  res.json({ passwordResetSuccessful: 'Your password has been reset!' })
 }
 
 export const updateStudentPassword = async (req: Request, res: Response): Promise<void> => {
