@@ -1,42 +1,42 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../database/databaseSqlite'
 import { v4 as uuidv4 } from 'uuid'
-import Lecturer from './lecturerModel'
-import Student from './studentModel'
 
-class Courses extends Model {
+class questionOptions extends Model {
   static associate (models: any): void {
-    Courses.belongsToMany(Student, { through: 'StudentCourses', as: 'students' })
-
-    Courses.belongsToMany(Lecturer, { through: 'LecturerCourses', as: 'lecturers' })
+    // Define the many-to-many relationship with the Course model
+    questionOptions.belongsTo(models.Question, {
+      foreignKey: 'questionId',
+      as: 'question'
+    })
   }
 }
 
-Courses.init(
+questionOptions.init(
   {
-    courseId: {
+    optionId: {
       type: DataTypes.UUID,
       defaultValue: () => uuidv4(),
       primaryKey: true,
       allowNull: false
     },
-    courseCode: {
+    optionA: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    courseTitle: {
+    optionB: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    creditUnit: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    session: {
+    optionC: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    semester: {
+    optionD: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    correctOption: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -44,8 +44,8 @@ Courses.init(
   },
   {
     sequelize,
-    modelName: 'Courses'
+    modelName: 'questionOptions'
   }
 )
 
-export default Courses
+export default questionOptions

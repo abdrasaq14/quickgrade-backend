@@ -1,12 +1,10 @@
 // import { Request, Response, NextFunction} from 'express'
-import { type Response } from 'express';
-import { Request } from 'express';
-import speakeasy from 'speakeasy';
-import Student from '../model/studentModel';
-import Lecturer from '../model/lecturerModel';
-import { transporter } from '../utils/emailsender';
-import { type AuthenticatedRequest } from '../../extender';
-
+import { type Response } from 'express'
+import speakeasy from 'speakeasy'
+import Student from '../model/studentModel'
+import Lecturer from '../model/lecturerModel'
+import { transporter } from '../utils/emailsender'
+import { type AuthenticatedRequest } from '../../extender'
 
 export const sendStudentOTP = async (req: AuthenticatedRequest | Request, res: Response): Promise<void> => {
   try {
@@ -61,7 +59,7 @@ export const verifyStudentOTP = async (req: AuthenticatedRequest | Request, res:
   try {
     console.log('req.body', req.body)
     const { otp } = req.body
-    const email = (req as AuthenticatedRequest).session.email;
+    const email = (req as AuthenticatedRequest).session.email
     console.log('email', email)
     const student = await Student.findOne({ where: { email, otp } })
 
@@ -86,34 +84,34 @@ export const verifyStudentOTP = async (req: AuthenticatedRequest | Request, res:
 
 export const sendLecturerOTP = async (
   req: AuthenticatedRequest | Request,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   try {
-    const { email } = req.body;
+    const { email } = req.body
 
-    const lecturer = await Lecturer.findOne({ where: { email } });
+    const lecturer = await Lecturer.findOne({ where: { email } })
 
     if (!lecturer) {
-      res.status(404).json({ error: 'User not found' });
-      return;
+      res.status(404).json({ error: 'User not found' })
+      return
     }
 
-    const totpSecret = speakeasy.generateSecret({ length: 20 });
+    const totpSecret = speakeasy.generateSecret({ length: 20 })
 
     // Update the student instance with TOTP details
     await lecturer.update({
       otpSecret: totpSecret.base32,
       otp: speakeasy.totp({
         secret: totpSecret.base32,
-        encoding: 'base32',
+        encoding: 'base32'
       }),
-      otpExpiration: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-    });
+      otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+    })
 
     const mailOptions = {
       from: {
         name: 'QuickGrade App',
-        address: 'quickgradedecagon@gmail.com',
+        address: 'quickgradedecagon@gmail.com'
       },
       to: email,
       subject: 'Quick Grade App - Email Verification Code',
@@ -124,47 +122,47 @@ export const sendLecturerOTP = async (
       <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
       you can safely ignore this email.
       Best,
-      The QuickGrade Team</h3>`,
-    };
+      The QuickGrade Team</h3>`
+    }
 
-    await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions)
 
-    res.status(200).json({ message: 'TOTP sent successfully' });
+    res.status(200).json({ message: 'TOTP sent successfully' })
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-};
+}
 
 export const verifyLecturerOTP = async (
   req: AuthenticatedRequest | Request,
-  res: Response,
+  res: Response
 ): Promise<void> => {
   try {
-    console.log('req.body', req.body);
-    const { otp } = req.body;
-    const email = (req as AuthenticatedRequest).session.email;
-    console.log('email', email);
+    console.log('req.body', req.body)
+    const { otp } = req.body
+    const email = (req as AuthenticatedRequest).session.email
+    console.log('email', email)
 
-    const lecturer = await Lecturer.findOne({ where: { email, otp } });
+    const lecturer = await Lecturer.findOne({ where: { email, otp } })
 
     if (!lecturer) {
-      res.status(401).json({ error: 'Invalid OTP' });
-      return;
+      res.status(401).json({ error: 'Invalid OTP' })
+      return
     }
 
     // Check if OTP is still valid (not expired)
-    const now = new Date();
+    const now = new Date()
     if (now > lecturer.otpExpiration) {
-      res.status(401).json({ error: 'OTP has expired' });
-      return;
+      res.status(401).json({ error: 'OTP has expired' })
+      return
     }
 
-    await lecturer.update({ isVerified: true });
+    await lecturer.update({ isVerified: true })
 
-    res.status(200).json({ message: 'OTP verified successfully' });
+    res.status(200).json({ message: 'OTP verified successfully' })
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-};
+}

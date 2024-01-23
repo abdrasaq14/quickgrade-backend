@@ -4,7 +4,10 @@ import bcrypt from 'bcryptjs'
 import type { AuthenticatedRequest } from '../../extender'
 import { transporter } from '../utils/emailsender'
 import crypto from 'crypto'
-
+import speakeasy from 'speakeasy'
+import Courses from '../model/courseModel'
+import Question from '../model/questionModel'
+import Exam from '../model/examModel'
 export const lecturerSignup = async (
   req: AuthenticatedRequest,
   res: Response
@@ -20,9 +23,7 @@ export const lecturerSignup = async (
     } else {
       const hashedPassword = await bcrypt.hash(password, 12)
       const noOfLecturer = (await Lecturer.count() + 1).toString().padStart(4, '0')
-      const employeeID = `LT${faculty.toUpperCase().slice(0, 4)}/${noOfLecturer}`
-      console.log('employeeID', employeeID)
-
+      const employeeID = `QUICK/LT/${faculty.toUpperCase().slice(0, 4)}/${noOfLecturer}`
       const createdLecturer = await Lecturer.create({
         faculty,
         department,
@@ -37,71 +38,74 @@ export const lecturerSignup = async (
           failedSignup: 'Lecturer signup failed'
         })
       } else {
-        req.session.email = email
-        console.log('req.session.email', req.session.email)
         const lecturerDetail = await Lecturer.findOne({ where: { email } })
 
         if (!lecturerDetail) {
           res.json({ lecturerNotFoundError: 'Lecturer record not found' })
         } else {
-          const lecturerDetail = await Lecturer.findOne({ where: { email } })
-          if (!lecturerDetail) {
-            console.log('Lecturer not found after signup')
-            res.json({ lecturerNotFoundError: 'Lecturer not found' })
-          } else {
-            const mailOptions = {
-              from: {
-                name: 'QuickGrade App',
-                address: 'quickgradedecagon@gmail.com'
-              },
-              to: email,
-              subject: 'Quick Grade App - Login Details',
-              text: 'Login Detail',
-              html: `<h3>Hi there,
-          Your Account has been successfully created. kindly find your login details below:</h3>
-          <h1> EmployeeID: ${lecturerDetail.dataValues.employeeID}</h1>
-          <h1> Password: ${password}</h1>
+          req.session.email = email
+          const totpSecret = speakeasy.generateSecret({ length: 20 })
 
-          Best regards,
-          <h3>The QuickGrade Team</h3>`
-            }
+          // Update the lecturer instance with TOTP details
+          await lecturerDetail.update({
+            otpSecret: totpSecret.base32,
+            otp: speakeasy.totp({
+              secret: totpSecret.base32,
+              encoding: 'base32'
+            }),
+            otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+          })
 
-            await transporter.sendMail(mailOptions)
-            console.log('successs')
-            req.session.email = email
-            res.json({ successfulSignup: 'Lecturer signup successful' })
-
-            //   const totpSecret = speakeasy.generateSecret({ length: 20 })
-
-            //   // Update the Lecturer instance with TOTP details
-            //   await lecturerDetail.update({
-            //     otpSecret: totpSecret.base32,
-            //     otp: speakeasy.totp({
-            //       secret: totpSecret.base32,
-            //       encoding: 'base32'
-            //     }),
-            //     otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-            //   })
-
-            //   const mailOptions = {
-            //     from: {
-            //       name: 'QuickGrade App',
-            //       address: 'quickgradedecagon@gmail.com'
-            //     },
-            //     to: email,
-            //     subject: 'Quick Grade App - Email Verification Code',
-            //     text: `TOTP: ${lecturerDetail.otp}`,
-            //     html: `<h3>Hi there,
-            // Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
-            // <h1>${lecturerDetail.otp}</h1>
-            // <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
-            // you can safely ignore this email.
-            // Best,
-            // The QuickGrade Team</h3>`
-            //   }
-
-            //   await transporter.sendMail(mailOptions)
+          const mailOptions = {
+            from: {
+              name: 'QuickGrade App',
+              address: 'quickgradedecagon@gmail.com'
+            },
+            to: email,
+            subject: 'Quick Grade App - Email Verification Code',
+            text: `TOTP: ${lecturerDetail.otp}`,
+            html: `<h3>Hi there,
+        Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+        <h1>${lecturerDetail.otp}</h1>
+        <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
+        you can safely ignore this email.
+        Best,
+        The QuickGrade Team</h3>`
           }
+          await transporter.sendMail(mailOptions)
+          console.log('successs')
+          res.json({ successfulSignup: 'lecturer signup successful' })
+
+          //   const totpSecret = speakeasy.generateSecret({ length: 20 })
+
+          //   // Update the Lecturer instance with TOTP details
+          //   await lecturerDetail.update({
+          //     otpSecret: totpSecret.base32,
+          //     otp: speakeasy.totp({
+          //       secret: totpSecret.base32,
+          //       encoding: 'base32'
+          //     }),
+          //     otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+          //   })
+
+          //   const mailOptions = {
+          //     from: {
+          //       name: 'QuickGrade App',
+          //       address: 'quickgradedecagon@gmail.com'
+          //     },
+          //     to: email,
+          //     subject: 'Quick Grade App - Email Verification Code',
+          //     text: `TOTP: ${lecturerDetail.otp}`,
+          //     html: `<h3>Hi there,
+          // Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+          // <h1>${lecturerDetail.otp}</h1>
+          // <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
+          // you can safely ignore this email.
+          // Best,
+          // The QuickGrade Team</h3>`
+          //   }
+
+          //   await transporter.sendMail(mailOptions)
         }
       }
     }
@@ -158,7 +162,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
   const user = await Lecturer.findOne({ where: { email } })
 
   if (!user) {
-    res.json({ LecturerNotFoundError: 'User not found' })
+    res.json({ userNotFoundError: 'User not found' })
     return
   } else {
     const token = crypto.randomBytes(20).toString('hex')
@@ -171,7 +175,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       to: email,
       subject: 'Password Reset',
       // text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://${req.headers.host}/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
-      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://localhost:5173/Lecturers/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process within one hour of receiving it:\n\nhttp://localhost:5173/lecturers/reset-password/${token}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n`
     }
 
     await transporter.sendMail(mailOptions)
@@ -189,14 +193,14 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
   if (!user) {
     res
       .status(404)
-      .json({ error: 'Password reset token is invalid or has expired.' })
+      .json({ invalidPasswordResetToken: 'Password reset token is invalid or has expired.' })
     return
   }
 
   if (!user.resetPasswordExpiration || Date.now() > user.resetPasswordExpiration.getTime()) {
     res
       .status(401)
-      .json({ error: 'Password reset token is invalid or has expired.' })
+      .json({ tokenExpired: 'Password reset token is invalid or has expired.' })
     return
   }
 
@@ -207,27 +211,45 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
   user.resetPasswordExpiration = null
   await user.save()
 
-  res.json({ message: 'Your password has been reset!' })
+  res.json({ passwordResetSuccessful: 'Your password has been reset!' })
 }
 export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const { otp } = req.body
-    const email = req.session.email
-    console.log('email', email)
-    const lecturerDetail = await Lecturer.findOne({ where: { email, otp } })
+    const lecturer = await Lecturer.findOne({ where: { otp } })
+    const email = lecturer?.dataValues.email
 
-    if (!lecturerDetail) {
-      res.json({ lecturerNotSignupError: 'User not signed up' })
+    if (!lecturer) {
+      res.json({ invalidOtp: 'Invalid otp' })
     } else {
       const now = new Date()
-      if (now > lecturerDetail.otpExpiration) {
+      if (now > lecturer.otpExpiration) {
         res.json({ expiredOtpError: 'OTP has expired' })
         return
       }
 
-      await lecturerDetail.update({ isVerified: true })
+      await lecturer.update({ isVerified: true })
+      // res.redirect('http://localhost:5173/students/reset-password')
+      const mailOptions = {
+        from: {
+          name: 'QuickGrade App',
+          address: 'quickgradedecagon@gmail.com'
+        },
+        to: email,
+        subject: 'Quick Grade App - Login Details',
+        text: 'Login Detail',
+        html: `<h3>Hi there,
+          Your Account has been successfully created and Email verification is successful. kindly find your login details below:</h3>
+          <h1> EmployeeID: ${lecturer.dataValues.employeeID}</h1>
+          
 
+          Best regards,
+          <h3>The QuickGrade Team</h3>`
+      }
+
+      await transporter.sendMail(mailOptions)
+      console.log('successs')
+      // res.json({ successfulSignup: 'Student signup successful' })
       res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
   } catch (error) {
@@ -262,12 +284,10 @@ export const updateLecturerPassword = async (req: Request, res: Response): Promi
   }
 }
 
-
-export const getLecturerProfile = async (req: Request, res: Response): 
-Promise<void> => {
+export const getLecturerProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     // Assuming that the authenticated lecturer's details are stored in req.user after authentication
-    const lecturerProfile = req.user;
+    const lecturerProfile = req.user
 
     // You can customize the data you want to include in the profile response
     const profileResponse = {
@@ -275,13 +295,91 @@ Promise<void> => {
       employeeID: lecturerProfile.employeeID,
       email: lecturerProfile.email,
       faculty: lecturerProfile.faculty,
-      department: lecturerProfile.department,
+      department: lecturerProfile.department
       // Add more fields as needed
-    };
+    }
 
-    res.status(200).json(profileResponse);
+    res.status(200).json(profileResponse)
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-};
+}
+
+export const createCourse = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { courseCode, courseTitle, creditUnit, session, semester } = req.body
+
+    const newCourse = await Courses.create({
+      courseCode,
+      courseTitle,
+      creditUnit,
+      session,
+      semester
+    })
+    if (!newCourse) {
+      res.json({
+        message: 'unable to create course'
+      })
+    } else {
+      res.json({
+        message: 'course created succesfully'
+      })
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const setExamQuestions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    console.log('req.body', req.body)
+    const {
+      lecturerId, examDuration, courseCode, semester, session, faculty, department, examDate,
+      totalScore, questions
+    } = req.body
+
+    const createdExam = await Exam.create({
+      examDuration,
+      courseCode,
+      semester,
+      session,
+      faculty,
+      lecturerId,
+      department,
+      examDate,
+      totalScore,
+      totalNoOfQuestions: questions.length
+    })
+
+    const examId = createdExam.dataValues.examId
+    console.log('examId', examId)
+
+    // Use Promise.all to wait for all promises to resolve
+    const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
+      try {
+        return await Question.create({
+          questionText: question.questionText,
+          optionA: question.optionA,
+          optionB: question.optionB,
+          optionC: question.optionC,
+          optionD: question.optionD,
+          lecturerId: createdExam.dataValues.lecturerId,
+          correctAnswer: question.correctAnswer,
+          courseCode,
+          examId
+        })
+      } catch (error) {
+        console.log('error', error)
+      }
+    }))
+    if (!createdQuestions) {
+      console.log('unable to create questions')
+    } else {
+      console.log('question created successfully')
+      res.json({ message: 'exam created successfully' })
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
