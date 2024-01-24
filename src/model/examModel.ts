@@ -124,7 +124,10 @@ Exam.init(
       defaultValue: null
     },
     totalNoOfQuestions: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.INTEGER
+    },
+    grade: {
+      type: DataTypes.STRING,
       allowNull: false
     }
   },
