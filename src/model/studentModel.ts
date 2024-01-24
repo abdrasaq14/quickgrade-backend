@@ -49,6 +49,10 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false
     },
+    level: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     otp: {
       type: DataTypes.STRING,
       allowNull: true
