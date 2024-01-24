@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import Student from '../model/studentModel'
+import Courses from '../model/courseModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
 import { transporter } from '../utils/emailsender'
@@ -7,6 +8,12 @@ import { type AuthenticatedRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
 const secret: string = (process.env.secret ?? '')
+
+
+interface AuthRequest extends Request {
+  student?: { studentId: string }; 
+}
+
 
 export const studentSignup = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -273,5 +280,33 @@ export const updateStudentPassword = async (req: Request, res: Response): Promis
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+export const getStudentDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+
+    const studentId = req.student?.studentId
+
+    if(!studentId){
+      res.json({ message: "unauthorized"})
+    }
+    else{
+
+      const student = await Student.findByPk(studentId)
+
+    const courses = await Courses.findAll({
+      where:{
+        semester: 'First',
+        session: '2023/2024'
+      }
+    })
+
+      res.json({ student, courses })
+
+      }
+
+  } catch (error) {
+    console.log(error)
   }
 }
