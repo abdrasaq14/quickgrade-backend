@@ -5,10 +5,9 @@ import type { AuthenticatedRequest } from '../../extender'
 import { transporter } from '../utils/emailsender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
-import Courses from '../model/courseModel'
 import Question from '../model/questionModel'
 import Exam from '../model/examModel'
-
+import Courses from '../model/courseModel'
 
 export const lecturerSignup = async (
   req: AuthenticatedRequest,
@@ -333,15 +332,14 @@ export const createCourse = async (req: Request, res: Response): Promise<void> =
   }
 }
 
-
 export const getCourses = async (req: Request, res: Response): Promise<void> => {
   try {
     const { semester, session } = req.body
 
-    const courses = Courses.findAll({
-      where:{
-        semester: semester,
-        session: session
+    const courses = await Courses.findAll({
+      where: {
+        semester,
+        session
       }
     })
 
@@ -359,8 +357,6 @@ export const getCourses = async (req: Request, res: Response): Promise<void> => 
     console.log(error)
   }
 }
-
-
 
 export const setExamQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -389,17 +385,33 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
       try {
-        return await Question.create({
-          questionText: question.questionText,
-          optionA: question.optionA,
-          optionB: question.optionB,
-          optionC: question.optionC,
-          optionD: question.optionD,
-          lecturerId: createdExam.dataValues.lecturerId,
-          correctAnswer: question.correctAnswer,
-          courseCode,
-          examId
-        })
+        if (question.optionA === '' || question.optionB === '' || question.optionC === '' || question.optionD === '' || question.correctAnswer === '') {
+          return await Question.create({
+            questionText: question.questionText,
+            questionType: 'Theory',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            examId
+          })
+        } else {
+          return await Question.create({
+            questionText: question.questionText,
+            questionType: 'Objetive',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            examId
+          })
+        }
       } catch (error) {
         console.log('error', error)
       }

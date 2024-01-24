@@ -81,25 +81,29 @@ Question.init(
     },
     optionA: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     optionB: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     optionC: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     optionD: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     courseCode: {
       type: DataTypes.STRING,
       allowNull: false
     },
     correctAnswer: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    questionType: {
       type: DataTypes.STRING,
       allowNull: false
     },
