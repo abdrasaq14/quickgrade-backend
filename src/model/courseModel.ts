@@ -3,12 +3,16 @@ import sequelize from '../database/databaseSqlite'
 import { v4 as uuidv4 } from 'uuid'
 import Lecturer from './lecturerModel'
 import Student from './studentModel'
+import Session from './sessionModel'
+import Semester from './semesterModel'
 
 class Courses extends Model {
   static associate (models: any): void {
     Courses.belongsToMany(Student, { through: 'StudentCourses', as: 'students' })
-
     Courses.belongsToMany(Lecturer, { through: 'LecturerCourses', as: 'lecturers' })
+
+    Courses.belongsTo(Session, { foreignKey: 'session', as: 'courseSession' })
+    Courses.belongsTo(Semester, { foreignKey: 'semester', as: 'courseSemester' })
   }
 }
 
@@ -40,7 +44,6 @@ Courses.init(
       type: DataTypes.STRING,
       allowNull: false
     }
-
   },
   {
     sequelize,
