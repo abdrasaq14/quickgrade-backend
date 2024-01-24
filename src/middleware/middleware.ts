@@ -1,56 +1,64 @@
 import { type AuthenticatedRequest } from '../../extender';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import Student from '../model/studentModel';
 
-const SECRET_KEY = 'your-secret-key';
-
-export async function authenticate (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
-  const email = req.session.email
-  console.log('email', email)
-  try {
-    if (!email) {
-      console.log('no email')
-      res.json({ unathorized: 'unathorized' })
-    } else {
-      req.user = email
-      next()
-    }
-  } catch (error) {
-    console.error(error)
-    res.status(401).json({ message: 'Unauthorized' })
-  }
-};
+const secret: string = (process.env.secret ?? '')
 
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any; 
-    }
-  }
+interface AuthRequest extends Request {
+  student?: { studentId: string }; // Add the user property
 }
 
 
-export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
-  const token = (req.headers['x-access-token']) as string;
-  if (!token) {
-    res.status(401).json({ error: 'Unauthorized - Token not provided' });
-    return next();
-  }
+// export async function authenticate (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+//   const email = req.session.email
+//   console.log('email', email)
+//   try {
+//     if (!email) {
+//       console.log('no email')
+//       res.json({ unathorized: 'unathorized' })
+//     } else {
+//       req.user = email
+//       next()
+//     }
+//   } catch (error) {
+//     console.error(error)
+//     res.status(401).json({ message: 'Unauthorized' })
+//   }
+// };
+
+
+
+
+export async function authenticateStudent(req: AuthRequest, res: Response, next: NextFunction) {
 
   try {
-    const decoded = await new Promise((resolve, reject) => {
-      jwt.verify(token, SECRET_KEY, (error, decoded) => {
-        if (error) reject(error);
-        else resolve(decoded);
+
+    const token = req.cookies.token
+    console.log('token', token)
+
+  if (!token) {
+    res.status(401).json({ error: 'Unauthorized - Token not provided' });
+  }
+    else{
+      const decoded = jwt.verify(token, secret) as { loginkey: string };
+      console.log(decoded)
+    
+      const student = await Student.findOne({
+        where: { studentId: decoded.loginkey }, 
       });
-    });
-    req.user = decoded;
+
+    req.student = {studentId: student?.dataValues.studentId}
+
     next();
+
+    }
+    
   } catch (error) {
     console.error(error);
     res.status(401).json({ error: 'Unauthorized - Invalid token' });
-    return next();
+    
   }
 }
 
