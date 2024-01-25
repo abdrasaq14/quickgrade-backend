@@ -7,6 +7,8 @@ import { transporter } from '../utils/emailsender'
 import { type AuthenticatedRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
+import { Cookie } from 'express-session'
+
 const secret: string = (process.env.secret ?? '')
 
 
@@ -165,8 +167,10 @@ export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promi
 export const studentLogin = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     console.log('req.body', req.body)
+    console.log(secret)
     const { matricNo, password } = req.body
     const existingStudent = await Student.findOne({ where: { matricNo } })
+    console.log(existingStudent)
 
     // const email = existingStudent?.dataValues.email
     // req.session.email = email
@@ -185,7 +189,9 @@ export const studentLogin = async (req: AuthenticatedRequest, res: Response, nex
       } else {
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
 
-        res.cookie('token', token, { httpOnly: true, secure: true })
+        console.log(token)
+
+        res.cookie('token', token, { httpOnly: true, secure: false })
 
         res.json({
           successfulLogin: 'Login successful'
@@ -291,16 +297,17 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
     if(!studentId){
       res.json({ message: "unauthorized"})
     }
-    else{
+    else {
+      const semester = req.query.semester || 'First'; 
 
-      const student = await Student.findByPk(studentId)
+      const student = await Student.findByPk(studentId);
 
-    const courses = await Courses.findAll({
-      where:{
-        semester: 'First',
-        session: '2023/2024'
-      }
-    })
+      const courses = await Courses.findAll({
+        where: {
+          semester: semester,
+          session: '2023/2024',
+        },
+      });
 
       res.json({ student, courses })
 

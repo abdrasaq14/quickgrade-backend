@@ -36,7 +36,8 @@ export async function authenticateStudent(req: AuthRequest, res: Response, next:
   try {
 
     const token = req.cookies.token
-    console.log('token', token)
+
+    console.log(`token is ${token}`)
 
   if (!token) {
     res.status(401).json({ error: 'Unauthorized - Token not provided' });
