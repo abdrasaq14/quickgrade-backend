@@ -1,7 +1,7 @@
 import Lecturer from '../model/lecturerModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
-import type { AuthenticatedRequest } from '../../extender'
+import type { AuthRequest } from '../../extender'
 import { transporter } from '../utils/emailsender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
@@ -9,12 +9,10 @@ import Question from '../model/questionModel'
 import Exam from '../model/examModel'
 import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
-interface AuthRequest extends Request {
-  lecturer?: { lecturerId: string } // Add the user property
-}
+
 const secret: string = (process.env.secret ?? '')
 export const lecturerSignup = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response
 ): Promise<void> => {
   try {
@@ -48,7 +46,6 @@ export const lecturerSignup = async (
         if (!lecturerDetail) {
           res.json({ lecturerNotFoundError: 'Lecturer record not found' })
         } else {
-          req.session.email = email
           const totpSecret = speakeasy.generateSecret({ length: 20 })
 
           // Update the lecturer instance with TOTP details
@@ -124,7 +121,7 @@ export const lecturerSignup = async (
 }
 
 export const lecturerLogin = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -148,11 +145,10 @@ export const lecturerLogin = async (
           inValidPassword: 'Invalid password'
         })
       } else {
-        const token = jwt.sign({ loginkey: existingLecturer.dataValues.studentId }, secret, { expiresIn: '1h' })
-
-        console.log(token)
-
-        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
+        const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '1h' })
+        req.session.lecturerId = token
+        console.log('login token', req.session.lecturerId)
+        // res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
 
         res.json({
           successfulLogin: 'login successful'
@@ -224,7 +220,7 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
 
   res.json({ passwordResetSuccessful: 'Your password has been reset!' })
 }
-export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { otp } = req.body
     const lecturer = await Lecturer.findOne({ where: { otp } })
@@ -439,10 +435,12 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
 
 export const getLecturerDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
   const lecturerId = req.lecturer?.lecturerId
-
+  console.log('lecturerId', lecturerId)
   if (!lecturerId) {
+    console.log('unathorized')
     res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
   } else {
+    console.log('authorzied')
     res.json({ lecturerAuthorized: 'access granted' })
   }
 }

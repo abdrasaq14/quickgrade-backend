@@ -4,17 +4,13 @@ import Courses from '../model/courseModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
 import { transporter } from '../utils/emailsender'
-import { type AuthenticatedRequest } from '../../extender'
+import type { AuthRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
 
 const secret: string = (process.env.secret ?? '')
 
-interface AuthRequest extends Request {
-  student?: { studentId: string }
-}
-
-export const studentSignup = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     console.log('req', req.body)
     const { faculty, email, department, password } = req.body
@@ -114,7 +110,7 @@ export const studentSignup = async (req: AuthenticatedRequest, res: Response): P
   }
 }
 
-export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     console.log('req.body', req.body)
     const { otp } = req.body
@@ -161,7 +157,7 @@ export const verifyOTP = async (req: AuthenticatedRequest, res: Response): Promi
   }
 }
 
-export const studentLogin = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const studentLogin = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     console.log('req.body', req.body)
     console.log(secret)
