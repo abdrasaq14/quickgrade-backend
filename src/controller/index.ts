@@ -3,14 +3,16 @@ import { type Request, type Response } from 'express'
 
 export const createCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { courseCode, courseTitle, creditUnit, session, semester } = req.body
+    const { courseCode, courseTitle, creditUnit, session, semester, department, faculty } = req.body
 
     const newCourse = await Courses.create({
       courseCode,
       courseTitle,
       creditUnit,
       session,
-      semester
+      semester,
+      department,
+      faculty
     })
     if (!newCourse) {
       res.json({

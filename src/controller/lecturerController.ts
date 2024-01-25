@@ -360,14 +360,14 @@ export const getCourses = async (req: Request, res: Response): Promise<void> => 
 
 export const setExamQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const {
-      lecturerId, examDuration, courseCode, semester, session, faculty, department, examDate,
+      lecturerId, examDuration, courseTitle, courseCode, semester, session, faculty, department, examDate,
       totalScore, questions
     } = req.body
 
     const createdExam = await Exam.create({
       examDuration,
+      courseTitle,
       courseCode,
       semester,
       session,
