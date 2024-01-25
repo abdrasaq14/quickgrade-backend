@@ -20,8 +20,5 @@ router.post('/set-exam', setExamQuestions)
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.put('students/update-password/:userId', updateLecturerPassword)
 // Retrieve and return lecturer profile
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-// router.get('/profile', authenticateToken, getLecturerProfile)
-// router.get('/profile', authenticateToken, getLecturerProfile);
 
 export default router

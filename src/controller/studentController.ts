@@ -7,15 +7,12 @@ import { transporter } from '../utils/emailsender'
 import { type AuthenticatedRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
-import { Cookie } from 'express-session'
 
 const secret: string = (process.env.secret ?? '')
 
-
 interface AuthRequest extends Request {
-  student?: { studentId: string }; 
+  student?: { studentId: string }
 }
-
 
 export const studentSignup = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
@@ -265,13 +262,11 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
 }
 
 export const updateStudentPassword = async (req: AuthRequest, res: Response): Promise<void> => {
-  
-
   try {
     // Find the user by ID
 
     const studentId = req.student?.studentId
-    
+
     const { newPassword } = req.body
     const student = await Student.findByPk(studentId)
 
@@ -294,28 +289,24 @@ export const updateStudentPassword = async (req: AuthRequest, res: Response): Pr
 
 export const getStudentDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-
     const studentId = req.student?.studentId
 
-    if(!studentId){
-      res.json({ message: "unauthorized"})
-    }
-    else {
-      const semester = req.query.semester || 'First'; 
+    if (!studentId) {
+      res.json({ message: 'unauthorized' })
+    } else {
+      const semester = req.query.semester || 'First'
 
-      const student = await Student.findByPk(studentId);
+      const student = await Student.findByPk(studentId)
 
       const courses = await Courses.findAll({
         where: {
-          semester: semester,
-          session: '2023/2024',
-        },
-      });
+          semester,
+          session: '2023/2024'
+        }
+      })
 
       res.json({ student, courses })
-
-      }
-
+    }
   } catch (error) {
     console.log(error)
   }
