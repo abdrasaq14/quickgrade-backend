@@ -5,11 +5,14 @@ import type { AuthenticatedRequest } from '../../extender'
 import { transporter } from '../utils/emailsender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
-import Courses from '../model/courseModel'
 import Question from '../model/questionModel'
 import Exam from '../model/examModel'
-
-
+import Courses from '../model/courseModel'
+import jwt from 'jsonwebtoken'
+interface AuthRequest extends Request {
+  lecturer?: { lecturerId: string } // Add the user property
+}
+const secret: string = (process.env.secret ?? '')
 export const lecturerSignup = async (
   req: AuthenticatedRequest,
   res: Response
@@ -144,11 +147,17 @@ export const lecturerLogin = async (
         res.status(401).json({
           inValidPassword: 'Invalid password'
         })
-      }
+      } else {
+        const token = jwt.sign({ loginkey: existingLecturer.dataValues.studentId }, secret, { expiresIn: '1h' })
 
-      res.json({
-        successfulLogin: 'login successful'
-      })
+        console.log(token)
+
+        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
+
+        res.json({
+          successfulLogin: 'login successful'
+        })
+      }
     }
   } catch (error: any) {
     console.error('Error during lecturer login:', error)
@@ -333,15 +342,14 @@ export const createCourse = async (req: Request, res: Response): Promise<void> =
   }
 }
 
-
 export const getCourses = async (req: Request, res: Response): Promise<void> => {
   try {
     const { semester, session } = req.body
 
-    const courses = Courses.findAll({
-      where:{
-        semester: semester,
-        session: session
+    const courses = await Courses.findAll({
+      where: {
+        semester,
+        session
       }
     })
 
@@ -360,18 +368,16 @@ export const getCourses = async (req: Request, res: Response): Promise<void> => 
   }
 }
 
-
-
 export const setExamQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const {
-      lecturerId, examDuration, courseCode, semester, session, faculty, department, examDate,
+      lecturerId, examDuration, courseTitle, courseCode, semester, session, faculty, department, examDate,
       totalScore, questions
     } = req.body
 
     const createdExam = await Exam.create({
       examDuration,
+      courseTitle,
       courseCode,
       semester,
       session,
@@ -389,17 +395,33 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
       try {
-        return await Question.create({
-          questionText: question.questionText,
-          optionA: question.optionA,
-          optionB: question.optionB,
-          optionC: question.optionC,
-          optionD: question.optionD,
-          lecturerId: createdExam.dataValues.lecturerId,
-          correctAnswer: question.correctAnswer,
-          courseCode,
-          examId
-        })
+        if (question.optionA === '' || question.optionB === '' || question.optionC === '' || question.optionD === '' || question.correctAnswer === '') {
+          return await Question.create({
+            questionText: question.questionText,
+            questionType: 'Theory',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            examId
+          })
+        } else {
+          return await Question.create({
+            questionText: question.questionText,
+            questionType: 'Objetive',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            examId
+          })
+        }
       } catch (error) {
         console.log('error', error)
       }
@@ -412,5 +434,15 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     }
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const getLecturerDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
+  const lecturerId = req.lecturer?.lecturerId
+
+  if (!lecturerId) {
+    res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
+  } else {
+    res.json({ lecturerAuthorized: 'access granted' })
   }
 }

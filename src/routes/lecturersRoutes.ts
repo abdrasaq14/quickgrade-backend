@@ -1,6 +1,6 @@
 import express from 'express'
-import { lecturerSignup, updateLecturerPassword, lecturerLogin, verifyOTP, resetPassword, resetPasswordToken, createCourse, setExamQuestions } from '../controller/lecturerController'
-import { authenticateStudent } from '../middleware/middleware'
+import { lecturerSignup, updateLecturerPassword, lecturerLogin, verifyOTP, resetPassword, resetPasswordToken, setExamQuestions, getLecturerDashboard } from '../controller/lecturerController'
+import { authenticateLecturer } from '../middleware/lecturerMiddleware'
 const router = express.Router()
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -16,15 +16,11 @@ router.post('/reset-password', resetPassword)
 router.post('/reset-password/:token', resetPasswordToken)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-router.post('/create-course', createCourse)
-
+router.get('/dashboard', authenticateLecturer, getLecturerDashboard)
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.post('/set-exam', setExamQuestions)
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.put('students/update-password/:userId', updateLecturerPassword)
 // Retrieve and return lecturer profile
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-// router.get('/profile', authenticateToken, getLecturerProfile)
-// router.get('/profile', authenticateToken, getLecturerProfile);
 
 export default router

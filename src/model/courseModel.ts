@@ -43,6 +43,14 @@ Courses.init(
     semester: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    faculty: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    department: {
+      type: DataTypes.STRING,
+      allowNull: false
     }
   },
   {

@@ -83,7 +83,11 @@ Exam.init(
       allowNull: false
     },
     courseCode: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    courseTitle: {
+      type: DataTypes.STRING,
       allowNull: false
     },
 
@@ -125,11 +129,11 @@ Exam.init(
     },
     totalNoOfQuestions: {
       type: DataTypes.INTEGER
-    },
-    grade: {
-      type: DataTypes.STRING,
-      allowNull: false
     }
+    // grade: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false
+    // }
   },
   {
     sequelize,

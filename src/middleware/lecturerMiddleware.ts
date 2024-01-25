@@ -1,11 +1,11 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import Student from '../model/studentModel'
+import Lecturer from '../model/lecturerModel'
 
 const secret: string = (process.env.secret ?? '')
 
 interface AuthRequest extends Request {
-  student?: { studentId: string } // Add the user property
+  lecturer?: { lecturerId: string } // Add the user property
 }
 
 // export async function authenticate (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
@@ -26,22 +26,21 @@ interface AuthRequest extends Request {
 // };
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function authenticateStudent (req: AuthRequest, res: Response, next: NextFunction) {
+export async function authenticateLecturer (req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const token = req.cookies.token
+    const token = req.cookies.lecturerToken
 
     if (!token) {
       console.log('no token')
-      res.json({ UnauthorizedError: 'Unauthorized - Token not provided' })
+      res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
     } else {
       const decoded = jwt.verify(token, secret) as { loginkey: string }
-      console.log(decoded)
 
-      const student = await Student.findOne({
-        where: { studentId: decoded.loginkey }
+      const lecturer = await Lecturer.findOne({
+        where: { lecturerId: decoded.loginkey }
       })
 
-      req.student = { studentId: student?.dataValues.studentId }
+      req.lecturer = { lecturerId: lecturer?.dataValues.lecturerId }
 
       next()
     }
