@@ -8,7 +8,11 @@ import speakeasy from 'speakeasy'
 import Question from '../model/questionModel'
 import Exam from '../model/examModel'
 import Courses from '../model/courseModel'
-
+import jwt from 'jsonwebtoken'
+interface AuthRequest extends Request {
+  lecturer?: { lecturerId: string } // Add the user property
+}
+const secret: string = (process.env.secret ?? '')
 export const lecturerSignup = async (
   req: AuthenticatedRequest,
   res: Response
@@ -143,11 +147,17 @@ export const lecturerLogin = async (
         res.status(401).json({
           inValidPassword: 'Invalid password'
         })
-      }
+      } else {
+        const token = jwt.sign({ loginkey: existingLecturer.dataValues.studentId }, secret, { expiresIn: '1h' })
 
-      res.json({
-        successfulLogin: 'login successful'
-      })
+        console.log(token)
+
+        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
+
+        res.json({
+          successfulLogin: 'login successful'
+        })
+      }
     }
   } catch (error: any) {
     console.error('Error during lecturer login:', error)
@@ -424,5 +434,15 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     }
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const getLecturerDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
+  const lecturerId = req.lecturer?.lecturerId
+
+  if (!lecturerId) {
+    res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
+  } else {
+    res.json({ lecturerAuthorized: 'access granted' })
   }
 }
