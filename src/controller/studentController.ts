@@ -264,22 +264,25 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
   res.json({ passwordResetSuccessful: 'Your password has been reset!' })
 }
 
-export const updateStudentPassword = async (req: Request, res: Response): Promise<void> => {
-  const { userId } = req.params
-  const { newPassword } = req.body
+export const updateStudentPassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  
 
   try {
     // Find the user by ID
-    const user = await Student.findByPk(userId)
 
-    if (!user) {
+    const studentId = req.student?.studentId
+    
+    const { newPassword } = req.body
+    const student = await Student.findByPk(studentId)
+
+    if (!student) {
       res.status(404).json({ error: 'User not found' })
     } else {
       // Update the user's password
-      user.dataValues.password = newPassword
+      student.dataValues.password = newPassword
 
       // Save the updated user to the database
-      await user.save()
+      await student.save()
 
       res.status(200).json({ message: 'Password updated successfully' })
     }
