@@ -4,9 +4,9 @@ import speakeasy from 'speakeasy'
 import Student from '../model/studentModel'
 import Lecturer from '../model/lecturerModel'
 import { transporter } from '../utils/emailsender'
-import { type AuthenticatedRequest } from '../../extender'
+import { type AuthRequest } from '../../extender'
 
-export const sendStudentOTP = async (req: AuthenticatedRequest | Request, res: Response): Promise<void> => {
+export const sendStudentOTP = async (req: AuthRequest | Request, res: Response): Promise<void> => {
   try {
     const { email } = req.body
 
@@ -55,11 +55,11 @@ export const sendStudentOTP = async (req: AuthenticatedRequest | Request, res: R
   }
 }
 
-export const verifyStudentOTP = async (req: AuthenticatedRequest | Request, res: Response): Promise<void> => {
+export const verifyStudentOTP = async (req: AuthRequest | Request, res: Response): Promise<void> => {
   try {
     console.log('req.body', req.body)
     const { otp } = req.body
-    const email = (req as AuthenticatedRequest).session.email
+    const email = (req as AuthRequest).session.email
     console.log('email', email)
     const student = await Student.findOne({ where: { email, otp } })
 
@@ -83,7 +83,7 @@ export const verifyStudentOTP = async (req: AuthenticatedRequest | Request, res:
 }
 
 export const sendLecturerOTP = async (
-  req: AuthenticatedRequest | Request,
+  req: AuthRequest | Request,
   res: Response
 ): Promise<void> => {
   try {
@@ -135,13 +135,13 @@ export const sendLecturerOTP = async (
 }
 
 export const verifyLecturerOTP = async (
-  req: AuthenticatedRequest | Request,
+  req: AuthRequest | Request,
   res: Response
 ): Promise<void> => {
   try {
     console.log('req.body', req.body)
     const { otp } = req.body
-    const email = (req as AuthenticatedRequest).session.email
+    const email = (req as AuthRequest).session.email
     console.log('email', email)
 
     const lecturer = await Lecturer.findOne({ where: { email, otp } })

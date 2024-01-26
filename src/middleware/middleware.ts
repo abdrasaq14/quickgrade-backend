@@ -1,12 +1,15 @@
-import { type Request, type Response, type NextFunction } from 'express'
-import jwt from 'jsonwebtoken'
-import Student from '../model/studentModel'
+
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import Student from '../model/studentModel';
 
 const secret: string = (process.env.secret ?? '')
 
+
 interface AuthRequest extends Request {
-  student?: { studentId: string } // Add the user property
+  student?: { studentId: string }; // Add the user property
 }
+
 
 // export async function authenticate (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
 //   const email = req.session.email
@@ -25,28 +28,38 @@ interface AuthRequest extends Request {
 //   }
 // };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function authenticateStudent (req: AuthRequest, res: Response, next: NextFunction) {
+
+
+
+export async function authenticateStudent(req: AuthRequest, res: Response, next: NextFunction) {
+
   try {
+
     const token = req.cookies.token
+    console.log('token', token)
 
-    if (!token) {
-      console.log('no token')
-      res.json({ UnauthorizedError: 'Unauthorized - Token not provided' })
-    } else {
-      const decoded = jwt.verify(token, secret) as { loginkey: string }
+  if (!token) {
+    res.status(401).json({ error: 'Unauthorized - Token not provided' });
+  }
+    else{
+      const decoded = jwt.verify(token, secret) as { loginkey: string };
       console.log(decoded)
-
+    
       const student = await Student.findOne({
-        where: { studentId: decoded.loginkey }
-      })
+        where: { studentId: decoded.loginkey }, 
+      });
 
-      req.student = { studentId: student?.dataValues.studentId }
+    req.student = {studentId: student?.dataValues.studentId}
 
-      next()
+    next();
+
     }
+    
   } catch (error) {
-    console.error(error)
-    res.status(401).json({ error: 'Unauthorized - Invalid token' })
+    console.error(error);
+    res.status(401).json({ error: 'Unauthorized - Invalid token' });
+    
   }
 }
+
+
