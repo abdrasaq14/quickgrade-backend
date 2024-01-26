@@ -293,6 +293,8 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
       const semester = req.query.semester || 'First'
 
       const student = await Student.findByPk(studentId)
+      console.log(student)
+      console.log(semester)
 
       const courses = await Courses.findAll({
         where: {
@@ -300,6 +302,7 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
           session: '2023/2024'
         }
       })
+      console.log(courses)
 
       res.json({ student, courses })
     }
