@@ -12,8 +12,7 @@ const secret: string = (process.env.secret ?? '')
 
 export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    console.log('req', req.body)
-    const { faculty, email, department, password } = req.body
+    const { firstName, lastName, faculty, email, department, password } = req.body
 
     const existingStudent = await Student.findOne({ where: { email } })
 
@@ -28,6 +27,8 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
       const hashedPassword = await bcrypt.hash(password, 12)
 
       const createdStudent = await Student.create({
+        firstName,
+        lastName,
         faculty,
         department,
         email,
@@ -78,27 +79,6 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
           await transporter.sendMail(mailOptions)
           console.log('successs')
           res.json({ successfulSignup: 'Student signup successful' })
-
-          // const mailOptions = {
-          //   from: {
-          //     name: 'QuickGrade App',
-          //     address: 'quickgradedecagon@gmail.com'
-          //   },
-          //   to: email,
-          //   subject: 'Quick Grade App - Login Details',
-          //   text: 'Login Detail',
-          //   html: `<h3>Hi there,
-          // Your Account has been successfully created. kindly find your login details below:</h3>
-          // <h1> MatricNo: ${studentDetail.dataValues.matricNo}</h1>
-          // <h1> Password: ${password}</h1>
-
-          // Best regards,
-          // <h3>The QuickGrade Team</h3>`
-          // }
-
-          // await transporter.sendMail(mailOptions)
-          // console.log('successs')
-          // res.json({ successfulSignup: 'Student signup successful' })
         }
       }
     }
@@ -112,12 +92,10 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
 
 export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const { otp } = req.body
 
     const student = await Student.findOne({ where: { otp } })
     const email = student?.dataValues.email
-    console.log('student', student)
     if (!student) {
       res.json({ invalidOtp: 'Invalid otp' })
     } else {
@@ -127,7 +105,7 @@ export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> 
         return
       }
 
-      await student.update({ isVerified: true })
+      await student.update({ isVerified: true, otp: null, otpExpiration: null, otpSecret: null })
       // res.redirect('http://localhost:5173/students/reset-password')
       const mailOptions = {
         from: {
@@ -145,9 +123,7 @@ export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> 
           Best regards,
           <h3>The QuickGrade Team</h3>`
       }
-
       await transporter.sendMail(mailOptions)
-      console.log('successs')
       // res.json({ successfulSignup: 'Student signup successful' })
       res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
@@ -293,9 +269,6 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
       const semester = req.query.semester || 'First'
 
       const student = await Student.findByPk(studentId)
-      console.log(student)
-      console.log(semester)
-
       const courses = await Courses.findAll({
         where: {
           semester,
