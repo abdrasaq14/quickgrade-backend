@@ -16,7 +16,7 @@ export const lecturerSignup = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { faculty, department, password, email } = req.body
+    const { firstName, lastName, title, faculty, department, password, email } = req.body
     const existingLecturer = await Lecturer.findOne({ where: { email } })
 
     if (existingLecturer) {
@@ -28,6 +28,9 @@ export const lecturerSignup = async (
       const noOfLecturer = (await Lecturer.count() + 1).toString().padStart(4, '0')
       const employeeID = `QUICK/LT/${faculty.toUpperCase().slice(0, 4)}/${noOfLecturer}`
       const createdLecturer = await Lecturer.create({
+        firstName,
+        lastName,
+        title,
         faculty,
         department,
         password: hashedPassword,
@@ -77,37 +80,6 @@ export const lecturerSignup = async (
           await transporter.sendMail(mailOptions)
           console.log('successs')
           res.json({ successfulSignup: 'lecturer signup successful' })
-
-          //   const totpSecret = speakeasy.generateSecret({ length: 20 })
-
-          //   // Update the Lecturer instance with TOTP details
-          //   await lecturerDetail.update({
-          //     otpSecret: totpSecret.base32,
-          //     otp: speakeasy.totp({
-          //       secret: totpSecret.base32,
-          //       encoding: 'base32'
-          //     }),
-          //     otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-          //   })
-
-          //   const mailOptions = {
-          //     from: {
-          //       name: 'QuickGrade App',
-          //       address: 'quickgradedecagon@gmail.com'
-          //     },
-          //     to: email,
-          //     subject: 'Quick Grade App - Email Verification Code',
-          //     text: `TOTP: ${lecturerDetail.otp}`,
-          //     html: `<h3>Hi there,
-          // Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
-          // <h1>${lecturerDetail.otp}</h1>
-          // <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
-          // you can safely ignore this email.
-          // Best,
-          // The QuickGrade Team</h3>`
-          //   }
-
-          //   await transporter.sendMail(mailOptions)
         }
       }
     }
@@ -235,7 +207,7 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
         return
       }
 
-      await lecturer.update({ isVerified: true })
+      await lecturer.update({ isVerified: true, otp: null, otpExpiration: null, otpSecret: null })
       // res.redirect('http://localhost:5173/students/reset-password')
       const mailOptions = {
         from: {
