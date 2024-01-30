@@ -7,26 +7,42 @@ import { transporter } from '../utils/emailsender'
 import type { AuthRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
-
+import { Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
+import Grading from '../model/gradingModel'
+import { ZodError, z } from "zod";
 const secret: string = (process.env.secret ?? '')
 
+  // Import AuthRequest type
+
+// Validation schema using Zod
+const studentSignupSchema = z.object({
+  firstName: z.string().min(2).max(50),
+  lastName: z.string().min(2).max(50),
+  faculty: z.string().min(2).max(50),
+  email: z.string().email(),
+  department: z.string().min(2).max(50),
+  password: z.string().min(6),
+});
 
 export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    console.log('req', req.body)
-    const { firstName, lastName, faculty, email, department, password } = req.body
+    // Validation using Zod schema
+    const validation = studentSignupSchema.parse(req.body);
 
-    const existingStudent = await Student.findOne({ where: { email } })
+    const { firstName, lastName, faculty, email, department, password } = validation;
+
+    const existingStudent = await Student.findOne({ where: { email } });
 
     if (existingStudent) {
       res.json({
         existingStudentError: 'Student already exists'
-      })
+      });
     } else {
-      const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0')
-      const matricNo = `${faculty.toUpperCase().slice(0, 3)}/${department.toUpperCase().slice(0, 3)}/${noOfStudent}`
+      const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0');
+      const matricNo = `${faculty.toUpperCase().slice(0, 3)}/${department.toUpperCase().slice(0, 3)}/${noOfStudent}`;
 
-      const hashedPassword = await bcrypt.hash(password, 12)
+      const hashedPassword = await bcrypt.hash(password, 12);
 
       const createdStudent = await Student.create({
         firstName,
@@ -36,21 +52,21 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
         faculty,
         department,
         matricNo
-      })
+      });
 
       if (!createdStudent) {
         res.json({
           failedSignup: 'Student signup failed'
-        })
+        });
       } else {
-        const student = await Student.findOne({ where: { email } })
+        const student = await Student.findOne({ where: { email } });
 
         if (!student) {
-          res.json({ studentNotFoundError: 'student record not found' })
+          res.json({ studentNotFoundError: 'student record not found' });
         } else {
-          req.session.email = email
+          req.session.email = email;
 
-          const totpSecret = speakeasy.generateSecret({ length: 20 })
+          const totpSecret = speakeasy.generateSecret({ length: 20 });
 
           // Update the student instance with TOTP details
           await student.update({
@@ -60,7 +76,7 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
               encoding: 'base32'
             }),
             otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-          })
+          });
 
           const mailOptions = {
             from: {
@@ -78,20 +94,25 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
         <br>
         Best, <br>
         The QuickGrade Team</h3>`
-          }
-          await transporter.sendMail(mailOptions)
-          console.log('successs')
-          res.json({ successfulSignup: 'Student signup successful' })
+          };
+
+          await transporter.sendMail(mailOptions);
+          console.log('successs');
+          res.json({ successfulSignup: 'Student signup successful' });
         }
       }
     }
   } catch (error) {
-    console.error('Error creating student: ', error)
-    res.json({
-      InternaServerError: 'Internal server error'
-    })
+    if (error instanceof ZodError) {
+      const formattedErrors = error.errors.map((err) => (err.message));
+      res.json({ validationError: formattedErrors });
+    } else {
+      console.error('Error creating student: ', error);
+      res.json({ InternaServerError: 'Internal server error' });
+    }
   }
-}
+};
+
 
 export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -285,3 +306,46 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
     console.log(error)
   }
 }
+
+
+
+//to check for students course per grade per semester.
+
+export const studentCoursesGrades = async (req: Request, res: Response) => {
+  try {
+      // Extract course ID and semester from the request parameters
+      const courseId = req.params.courseId;
+      const semester = req.params.semester;
+
+      // Fetch grades for the specified course and semester from the Grading model
+      const grades = await Grading.findAll({
+          // Specify the conditions for the query
+          // ...
+
+                // ...
+
+                                where: {
+                                  [Op.and]: [
+                                    { courseId }, // Match the course ID
+                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('createdAt')), new Date().getFullYear()), // Match the current year
+                                    { semester }, // Match the specified semester
+                                  ],
+                                },
+          // Include associated data, in this case, Course details
+          include: [
+              {
+                  model: Courses, // Specify the associated model (Courses)
+                  as: 'course', // Alias for Courses model
+                  attributes: ['courseCode', 'courseTitle'], // Include specific attributes from Courses
+              },
+          ],
+      });
+
+      // Respond with the fetched grades in JSON format
+      res.json({ grades });
+  } catch (error) {
+      // Handle errors by logging and sending a 500 Internal Server Error response
+      console.error('Error fetching grades:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
