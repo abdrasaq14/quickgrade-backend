@@ -21,6 +21,7 @@ import lecturerRouter from './routes/lecturersRoutes'
 import resetPasswordRouter from './routes/reset_pass'
 import gradeRouter from './routes/grade'
 import examResultRouter from './routes/examResultRoute'
+import examTimeTableRoute from './routes/examinationTimetable_Route'
 // import passResetRouter from './routes/reset-password'
 
 config()
@@ -58,7 +59,6 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, '../', 'public')))
 
-app.use('/', indexRouter)
 app.use('/otp', otpRouter)
 app.use('/students', studentRouter)
 app.use('/lecturers', lecturerRouter)
@@ -67,6 +67,8 @@ app.use('/request', requestRouter)
 app.use('/reset_pass', resetPasswordRouter)
 app.use('/results', gradeRouter)
 app.use('/exam-results', examResultRouter)
+app.use('/exam-timetable', examTimeTableRoute)
+app.use('/', indexRouter)
 // app.use('/reset-password', passResetRouter)
 
 // catch 404 and forward to error handler
