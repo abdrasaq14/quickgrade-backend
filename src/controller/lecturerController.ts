@@ -29,6 +29,8 @@ export const lecturerSignup = async (
       const noOfLecturer = (await Lecturer.count() + 1).toString().padStart(4, '0')
       const employeeID = `QUICK/LT/${faculty.toUpperCase().slice(0, 3)}/${noOfLecturer}`
       const createdLecturer = await Lecturer.create({
+        firstName,
+        lastName,
         faculty,
         department,
         password: hashedPassword,
