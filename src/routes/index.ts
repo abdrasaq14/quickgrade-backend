@@ -11,9 +11,8 @@ router.post('/create-course', createCourse)
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.get('/get-courses', getAllCourses)
 /* GET home page. */
-router.get(
-  '/:role',
-  function (req: Request, res: Response, next: NextFunction) {
+router.get('/:role', function (req: Request, res: Response, next: NextFunction) {
+  
     const { role } = req.params
     console.log('role', role)
     res.json({ role })

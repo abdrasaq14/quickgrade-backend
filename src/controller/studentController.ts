@@ -10,8 +10,10 @@ import speakeasy from 'speakeasy'
 
 const secret: string = (process.env.secret ?? '')
 
+
 export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    console.log('req', req.body)
     const { firstName, lastName, faculty, email, department, password } = req.body
 
     const existingStudent = await Student.findOne({ where: { email } })
@@ -22,17 +24,17 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
       })
     } else {
       const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0')
-      const matricNo = `${faculty.toUpperCase().slice(0, 4)}/${department.toUpperCase().slice(0, 4)}/${noOfStudent}`
+      const matricNo = `${faculty.toUpperCase().slice(0, 3)}/${department.toUpperCase().slice(0, 3)}/${noOfStudent}`
 
       const hashedPassword = await bcrypt.hash(password, 12)
 
       const createdStudent = await Student.create({
         firstName,
         lastName,
-        faculty,
-        department,
         email,
         password: hashedPassword,
+        faculty,
+        department,
         matricNo
       })
 
@@ -69,11 +71,12 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
             subject: 'Quick Grade App - Email Verification Code',
             text: `TOTP: ${student.otp}`,
             html: `<h3>Hi there,
-        Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
+        Thank you for signing up to QuickGrade. Copy the OTP below to verify your email:</h3>
         <h1>${student.otp}</h1>
         <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
-        you can safely ignore this email.
-        Best,
+        you can safely ignore this email. <br>
+        <br>
+        Best, <br>
         The QuickGrade Team</h3>`
           }
           await transporter.sendMail(mailOptions)
@@ -117,10 +120,9 @@ export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> 
         text: 'Login Detail',
         html: `<h3>Hi there,
           Your Account has been successfully created and Email verification is successful. kindly find your login details below:</h3>
-          <h1> MatricNo: ${student.dataValues.matricNo}</h1>
+          <h2> MatricNo: ${student.dataValues.matricNo}</h2>
           
-
-          Best regards,
+          <h3>Best regards,<h3> <br>
           <h3>The QuickGrade Team</h3>`
       }
       await transporter.sendMail(mailOptions)

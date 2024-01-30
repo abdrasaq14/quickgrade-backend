@@ -11,12 +11,13 @@ import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
 
 const secret: string = (process.env.secret ?? '')
+
 export const lecturerSignup = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { firstName, lastName, title, faculty, department, password, email } = req.body
+    const { firstName, lastName, faculty, department, password, email } = req.body
     const existingLecturer = await Lecturer.findOne({ where: { email } })
 
     if (existingLecturer) {
@@ -26,11 +27,10 @@ export const lecturerSignup = async (
     } else {
       const hashedPassword = await bcrypt.hash(password, 12)
       const noOfLecturer = (await Lecturer.count() + 1).toString().padStart(4, '0')
-      const employeeID = `QUICK/LT/${faculty.toUpperCase().slice(0, 4)}/${noOfLecturer}`
+      const employeeID = `QUICK/LT/${faculty.toUpperCase().slice(0, 3)}/${noOfLecturer}`
       const createdLecturer = await Lecturer.create({
         firstName,
         lastName,
-        title,
         faculty,
         department,
         password: hashedPassword,
@@ -73,8 +73,10 @@ export const lecturerSignup = async (
         Thank you for signing up for QuickGrade. Copy OTP below to verify your email:</h3>
         <h1>${lecturerDetail.otp}</h1>
         <h3>This OTP will expire in 10 minutes. If you did not sign up for a QuickGrade account,
-        you can safely ignore this email.
-        Best,
+        you can safely ignore this email. <br>
+        <br>
+
+        Best regards, <br>
         The QuickGrade Team</h3>`
           }
           await transporter.sendMail(mailOptions)
@@ -219,10 +221,13 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
         text: 'Login Detail',
         html: `<h3>Hi there,
           Your Account has been successfully created and Email verification is successful. kindly find your login details below:</h3>
+
           <h1> EmployeeID: ${lecturer.dataValues.employeeID}</h1>
+          <br>
+          <br>
           
 
-          Best regards,
+          <h3>Best regards,<br>
           <h3>The QuickGrade Team</h3>`
       }
 
