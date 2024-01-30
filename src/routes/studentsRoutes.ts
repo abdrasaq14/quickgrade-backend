@@ -15,7 +15,7 @@ router.post('/reset-password', resetPassword)
 router.post('/reset-password/:token', resetPasswordToken)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-router.get('/dashboard', authenticateStudent, getStudentDashboard)
+router.get('/dashboard', getStudentDashboard)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.put('/dashboard/change-password', updateStudentPassword)

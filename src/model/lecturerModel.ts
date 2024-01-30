@@ -4,11 +4,25 @@ import { v4 as uuidv4 } from 'uuid'
 import Courses from './courseModel'
 
 class Lecturer extends Model {
+  lecturerId!: string
+  title!: string
+  firstName!: string
+  lastName!: string
+  email!: string
+  employeeID!: string
+  password!: string
+  faculty!: string
+  department!: string
   otp!: string
+  otpSecret!: string | null
   otpExpiration!: Date
+  isVerified!: boolean
   resetPasswordToken!: string | null
   resetPasswordExpiration!: Date | null
-  password!: string
+
+
+
+
   static associate (models: any): void {
     // Define the many-to-many relationship with the Course model
     Lecturer.belongsToMany(Courses, {
@@ -68,7 +82,20 @@ Lecturer.init(
     department: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    otpSecret: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    resetPasswordToken: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    resetPasswordExpiration: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
+
   },
   {
     sequelize,
