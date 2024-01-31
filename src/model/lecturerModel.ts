@@ -20,9 +20,6 @@ class Lecturer extends Model {
   resetPasswordToken!: string | null
   resetPasswordExpiration!: Date | null
 
-
-
-
   static associate (models: any): void {
     // Define the many-to-many relationship with the Course model
     Lecturer.belongsToMany(Courses, {

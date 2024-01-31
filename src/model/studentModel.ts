@@ -18,8 +18,6 @@ class Student extends Model {
   isVerified!: boolean
   resetPasswordToken!: string | null
   resetPasswordExpiration!: Date | null
-  
- 
 
   static associate (models: any): void {
     Student.belongsToMany(Courses, {
