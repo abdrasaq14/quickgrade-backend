@@ -17,7 +17,7 @@ export const lecturerSignup = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { firstName, lastName, faculty, department, password, email } = req.body
+    const { firstName, lastName, faculty, department, password, email, title } = req.body
     const existingLecturer = await Lecturer.findOne({ where: { email } })
 
     if (existingLecturer) {
@@ -32,6 +32,7 @@ export const lecturerSignup = async (
         firstName,
         lastName,
         faculty,
+        title,
         department,
         password: hashedPassword,
         email,
@@ -343,6 +344,7 @@ export const getCourses = async (req: Request, res: Response): Promise<void> => 
 
 export const setExamQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log('req.body', req.body)
     const {
       lecturerId, examDuration, courseTitle, courseCode, semester, session, faculty, department, examDate,
       totalScore, questions
@@ -403,7 +405,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
       console.log('unable to create questions')
     } else {
       console.log('question created successfully')
-      res.json({ message: 'exam created successfully' })
+      res.json({ examQuestionCreated: 'exam created successfully' })
     }
   } catch (error) {
     console.log(error)

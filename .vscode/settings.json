@@ -3,8 +3,8 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "name": "bb",
-      "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite"
+      "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite",
+      "name": "bb"
     }
   ]
 }
