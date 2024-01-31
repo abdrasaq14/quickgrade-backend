@@ -1,1 +1,234 @@
-[{"/Users/deca/Desktop/live-project-backend-quickgrade/src/app.ts":"1","/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/examinationTimetableController.ts":"2","/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/logoutController.ts":"3","/Users/deca/Desktop/live-project-backend-quickgrade/src/model/examinationTimetableModel.ts":"4","/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/examinationTimetable_Route.ts":"5","/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/index.ts":"6","/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/logoutRoute.ts":"7"},{"size":2496,"mtime":1706636029368,"results":"8","hashOfConfig":"9"},{"size":1695,"mtime":1706635859851,"results":"10","hashOfConfig":"9"},{"size":400,"mtime":1706635763356,"results":"11","hashOfConfig":"9"},{"size":967,"mtime":1706635771116,"results":"12","hashOfConfig":"9"},{"size":268,"mtime":1706635911894,"results":"13","hashOfConfig":"9"},{"size":581,"mtime":1706636168155,"results":"14","hashOfConfig":"9"},{"size":266,"mtime":1706635949140,"results":"15","hashOfConfig":"9"},{"filePath":"16","messages":"17","suppressedMessages":"18","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},"1d4rhzy",{"filePath":"19","messages":"20","suppressedMessages":"21","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},{"filePath":"22","messages":"23","suppressedMessages":"24","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},{"filePath":"25","messages":"26","suppressedMessages":"27","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},{"filePath":"28","messages":"29","suppressedMessages":"30","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},{"filePath":"31","messages":"32","suppressedMessages":"33","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},{"filePath":"34","messages":"35","suppressedMessages":"36","errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorCount":0,"fixableWarningCount":0},"/Users/deca/Desktop/live-project-backend-quickgrade/src/app.ts",[],[],"/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/examinationTimetableController.ts",[],[],"/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/logoutController.ts",[],[],"/Users/deca/Desktop/live-project-backend-quickgrade/src/model/examinationTimetableModel.ts",[],[],"/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/examinationTimetable_Route.ts",[],["37"],"/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/index.ts",[],["38","39"],"/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/logoutRoute.ts",[],["40"],{"ruleId":"41","severity":2,"message":"42","line":7,"column":17,"nodeType":"43","messageId":"44","endLine":7,"endColumn":33,"suppressions":"45"},{"ruleId":"41","severity":2,"message":"42","line":10,"column":31,"nodeType":"43","messageId":"44","endLine":10,"endColumn":43,"suppressions":"46"},{"ruleId":"41","severity":2,"message":"42","line":12,"column":28,"nodeType":"43","messageId":"44","endLine":12,"endColumn":41,"suppressions":"47"},{"ruleId":"41","severity":2,"message":"42","line":9,"column":23,"nodeType":"43","messageId":"44","endLine":9,"endColumn":29,"suppressions":"48"},"@typescript-eslint/no-misused-promises","Promise returned in function argument where a void return was expected.","Identifier","voidReturnArgument",["49"],["50"],["51"],["52"],{"kind":"53","justification":"54"},{"kind":"53","justification":"54"},{"kind":"53","justification":"54"},{"kind":"53","justification":"54"},"directive",""]
+[
+    {
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/app.ts": "1",
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/examinationTimetableController.ts": "2",
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/logoutController.ts": "3",
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/model/examinationTimetableModel.ts": "4",
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/examinationTimetable_Route.ts": "5",
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/index.ts": "6",
+        "/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/logoutRoute.ts": "7"
+    },
+    {
+        "size": 2496,
+        "mtime": 1706636029368,
+        "results": "8",
+        "hashOfConfig": "9"
+    },
+    {
+        "size": 1695,
+        "mtime": 1706635859851,
+        "results": "10",
+        "hashOfConfig": "9"
+    },
+    {
+        "size": 400,
+        "mtime": 1706635763356,
+        "results": "11",
+        "hashOfConfig": "9"
+    },
+    {
+        "size": 967,
+        "mtime": 1706635771116,
+        "results": "12",
+        "hashOfConfig": "9"
+    },
+    {
+        "size": 268,
+        "mtime": 1706635911894,
+        "results": "13",
+        "hashOfConfig": "9"
+    },
+    {
+        "size": 581,
+        "mtime": 1706636168155,
+        "results": "14",
+        "hashOfConfig": "9"
+    },
+    {
+        "size": 266,
+        "mtime": 1706635949140,
+        "results": "15",
+        "hashOfConfig": "9"
+    },
+    {
+        "filePath": "16",
+        "messages": "17",
+        "suppressedMessages": "18",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    "1d4rhzy",
+    {
+        "filePath": "19",
+        "messages": "20",
+        "suppressedMessages": "21",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    {
+        "filePath": "22",
+        "messages": "23",
+        "suppressedMessages": "24",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    {
+        "filePath": "25",
+        "messages": "26",
+        "suppressedMessages": "27",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    {
+        "filePath": "28",
+        "messages": "29",
+        "suppressedMessages": "30",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    {
+        "filePath": "31",
+        "messages": "32",
+        "suppressedMessages": "33",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    {
+        "filePath": "34",
+        "messages": "35",
+        "suppressedMessages": "36",
+        "errorCount": 0,
+        "fatalErrorCount": 0,
+        "warningCount": 0,
+        "fixableErrorCount": 0,
+        "fixableWarningCount": 0
+    },
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/app.ts",
+    [],
+    [],
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/examinationTimetableController.ts",
+    [],
+    [],
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/controller/logoutController.ts",
+    [],
+    [],
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/model/examinationTimetableModel.ts",
+    [],
+    [],
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/examinationTimetable_Route.ts",
+    [],
+    [
+        "37"
+    ],
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/index.ts",
+    [],
+    [
+        "38",
+        "39"
+    ],
+    "/Users/deca/Desktop/live-project-backend-quickgrade/src/routes/logoutRoute.ts",
+    [],
+    [
+        "40"
+    ],
+    {
+        "ruleId": "41",
+        "severity": 2,
+        "message": "42",
+        "line": 7,
+        "column": 17,
+        "nodeType": "43",
+        "messageId": "44",
+        "endLine": 7,
+        "endColumn": 33,
+        "suppressions": "45"
+    },
+    {
+        "ruleId": "41",
+        "severity": 2,
+        "message": "42",
+        "line": 10,
+        "column": 31,
+        "nodeType": "43",
+        "messageId": "44",
+        "endLine": 10,
+        "endColumn": 43,
+        "suppressions": "46"
+    },
+    {
+        "ruleId": "41",
+        "severity": 2,
+        "message": "42",
+        "line": 12,
+        "column": 28,
+        "nodeType": "43",
+        "messageId": "44",
+        "endLine": 12,
+        "endColumn": 41,
+        "suppressions": "47"
+    },
+    {
+        "ruleId": "41",
+        "severity": 2,
+        "message": "42",
+        "line": 9,
+        "column": 23,
+        "nodeType": "43",
+        "messageId": "44",
+        "endLine": 9,
+        "endColumn": 29,
+        "suppressions": "48"
+    },
+    "@typescript-eslint/no-misused-promises",
+    "Promise returned in function argument where a void return was expected.",
+    "Identifier",
+    "voidReturnArgument",
+    [
+        "49"
+    ],
+    [
+        "50"
+    ],
+    [
+        "51"
+    ],
+    [
+        "52"
+    ],
+    {
+        "kind": "53",
+        "justification": "54"
+    },
+    {
+        "kind": "53",
+        "justification": "54"
+    },
+    {
+        "kind": "53",
+        "justification": "54"
+    },
+    {
+        "kind": "53",
+        "justification": "54"
+    },
+    "directive",
+    ""
+]
