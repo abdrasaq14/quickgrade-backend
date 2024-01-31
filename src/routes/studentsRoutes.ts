@@ -1,5 +1,5 @@
 import express from 'express'
-import { studentSignup, updateStudentPassword, studentLogin, verifyOTP, resetPassword, resetPasswordToken, getStudentDashboard } from '../controller/studentController'
+import { studentSignup, updateStudentPassword, studentLogin, verifyOTP, resetPassword, resetPasswordToken, getStudentDashboard, logout, getExamTimetable } from '../controller/studentController'
 import { authenticateStudent } from '../middleware/middleware'
 const router = express.Router()
 
@@ -15,9 +15,13 @@ router.post('/reset-password', resetPassword)
 router.post('/reset-password/:token', resetPasswordToken)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-router.get('/dashboard', getStudentDashboard)
+router.get('/dashboard', authenticateStudent, getStudentDashboard)
+
+router.get('/dashboard/enrolled-courses', authenticateStudent, getExamTimetable)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-router.put('/dashboard/change-password', updateStudentPassword)
+router.put('/dashboard/change-password', authenticateStudent, updateStudentPassword)
+
+router.get('/dashboard/logout', authenticateStudent, logout)
 
 export default router
