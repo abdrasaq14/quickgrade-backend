@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import Student from '../model/studentModel'
 import Courses from '../model/courseModel'
+import Exam from '../model/examModel'
 import { type Request, type Response, type NextFunction } from 'express'
 import bcrypt from 'bcryptjs'
 import { transporter } from '../utils/emailsender'
@@ -159,10 +160,10 @@ export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> 
 export const studentLogin = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     console.log('req.body', req.body)
-    console.log(secret)
+    
     const { matricNo, password } = req.body
     const existingStudent = await Student.findOne({ where: { matricNo } })
-    console.log(existingStudent)
+    
 
     // const email = existingStudent?.dataValues.email
     // req.session.email = email
@@ -261,8 +262,11 @@ export const updateStudentPassword = async (req: AuthRequest, res: Response): Pr
     // Find the user by ID
 
     const studentId = req.student?.studentId
-
+    console.log('studentId', studentId)
+    
     const { newPassword } = req.body
+
+    console.log(req.body)
     const student = await Student.findByPk(studentId)
 
     if (!student) {
@@ -298,7 +302,7 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
           session: '2023/2024'
         }
       })
-      console.log(courses)
+
 
       res.json({ student, courses })
     }
@@ -306,46 +310,3 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
     console.log(error)
   }
 }
-
-
-
-//to check for students course per grade per semester.
-
-export const studentCoursesGrades = async (req: Request, res: Response) => {
-  try {
-      // Extract course ID and semester from the request parameters
-      const courseId = req.params.courseId;
-      const semester = req.params.semester;
-
-      // Fetch grades for the specified course and semester from the Grading model
-      const grades = await Grading.findAll({
-          // Specify the conditions for the query
-          // ...
-
-                // ...
-
-                                where: {
-                                  [Op.and]: [
-                                    { courseId }, // Match the course ID
-                                    Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('createdAt')), new Date().getFullYear()), // Match the current year
-                                    { semester }, // Match the specified semester
-                                  ],
-                                },
-          // Include associated data, in this case, Course details
-          include: [
-              {
-                  model: Courses, // Specify the associated model (Courses)
-                  as: 'course', // Alias for Courses model
-                  attributes: ['courseCode', 'courseTitle'], // Include specific attributes from Courses
-              },
-          ],
-      });
-
-      // Respond with the fetched grades in JSON format
-      res.json({ grades });
-  } catch (error) {
-      // Handle errors by logging and sending a 500 Internal Server Error response
-      console.error('Error fetching grades:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
