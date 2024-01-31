@@ -12,10 +12,8 @@ router.post('/create-course', createCourse)
 router.get('/get-courses', getAllCourses)
 /* GET home page. */
 router.get('/:role', function (req: Request, res: Response, next: NextFunction) {
-  
-    const { role } = req.params
-    console.log('role', role)
-    res.json({ role })
-  }
+  const { role } = req.params
+  res.json({ role })
+}
 )
 export default router
