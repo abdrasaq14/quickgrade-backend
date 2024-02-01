@@ -8,6 +8,7 @@ import { transporter } from '../utils/emailsender'
 import type { AuthRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
+<<<<<<< HEAD
 
 const secret: string = (process.env.secret ?? '')
 
@@ -17,6 +18,32 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
     console.log('req', req.body)
     const { firstName, lastName, faculty, email, department, password } = req.body
 
+=======
+import { Sequelize, Op } from 'sequelize'
+import Grading from '../model/gradingModel'
+import { ZodError, z } from 'zod'
+const secret: string = (process.env.secret ?? '')
+
+// Import AuthRequest type
+
+// Validation schema using Zod
+const studentSignupSchema = z.object({
+  firstName: z.string().min(2).max(50),
+  lastName: z.string().min(2).max(50),
+  faculty: z.string().min(2).max(50),
+  email: z.string().email(),
+  department: z.string().min(2).max(50),
+  password: z.string().min(6)
+})
+
+export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    // Validation using Zod schema
+    const validation = studentSignupSchema.parse(req.body)
+
+    const { firstName, lastName, faculty, email, department, password } = validation
+
+>>>>>>> b50c88f (improved the implementation that links the backend and frontend)
     const existingStudent = await Student.findOne({ where: { email } })
 
     if (existingStudent) {
@@ -80,6 +107,10 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
         Best, <br>
         The QuickGrade Team</h3>`
           }
+<<<<<<< HEAD
+=======
+
+>>>>>>> b50c88f (improved the implementation that links the backend and frontend)
           await transporter.sendMail(mailOptions)
           console.log('successs')
           res.json({ successfulSignup: 'Student signup successful' })
@@ -87,10 +118,20 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
       }
     }
   } catch (error) {
+<<<<<<< HEAD
     console.error('Error creating student: ', error)
     res.json({
       InternaServerError: 'Internal server error'
     })
+=======
+    if (error instanceof ZodError) {
+      const formattedErrors = error.errors.map((err) => (err.message))
+      res.json({ validationError: formattedErrors })
+    } else {
+      console.error('Error creating student: ', error)
+      res.json({ InternaServerError: 'Internal server error' })
+    }
+>>>>>>> b50c88f (improved the implementation that links the backend and frontend)
   }
 }
 
@@ -281,7 +322,10 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
           session: '2023/2024'
         }
       })
+<<<<<<< HEAD
 
+=======
+>>>>>>> b50c88f (improved the implementation that links the backend and frontend)
 
       res.json({ student, courses })
     }
@@ -290,6 +334,7 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
   }
 }
 
+<<<<<<< HEAD
 export const getExamTimetable = async (req: AuthRequest, res: Response): Promise<any> => {
   try {
 
@@ -340,3 +385,45 @@ export const logout = async (req: AuthRequest, res: Response): Promise<any> => {
     res.status(500).json({ error: errorMessage })
   }
 }
+=======
+// to check for students course per grade per semester.
+
+export const studentCoursesGrades = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Extract course ID and semester from the request parameters
+    const courseId = req.params.courseId
+    const semester = req.params.semester
+
+    // Fetch grades for the specified course and semester from the Grading model
+    const grades = await Grading.findAll({
+      // Specify the conditions for the query
+      // ...
+
+      // ...
+
+      where: {
+        [Op.and]: [
+          { courseId }, // Match the course ID
+          Sequelize.where(Sequelize.fn('YEAR', Sequelize.col('createdAt')), new Date().getFullYear()), // Match the current year
+          { semester } // Match the specified semester
+        ]
+      },
+      // Include associated data, in this case, Course details
+      include: [
+        {
+          model: Courses, // Specify the associated model (Courses)
+          as: 'course', // Alias for Courses model
+          attributes: ['courseCode', 'courseTitle'] // Include specific attributes from Courses
+        }
+      ]
+    })
+
+    // Respond with the fetched grades in JSON format
+    res.json({ grades })
+  } catch (error) {
+    // Handle errors by logging and sending a 500 Internal Server Error response
+    console.error('Error fetching grades:', error)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+>>>>>>> b50c88f (improved the implementation that links the backend and frontend)

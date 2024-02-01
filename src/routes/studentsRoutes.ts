@@ -17,11 +17,13 @@ router.post('/reset-password/:token', resetPasswordToken)
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.get('/dashboard', authenticateStudent, getStudentDashboard)
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.get('/dashboard/enrolled-courses', authenticateStudent, getExamTimetable)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.put('/dashboard/change-password', authenticateStudent, updateStudentPassword)
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.get('/dashboard/logout', authenticateStudent, logout)
 
 export default router
