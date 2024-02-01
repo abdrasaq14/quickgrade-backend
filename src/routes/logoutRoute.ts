@@ -6,6 +6,4 @@ const router = Router()
 // Define the logout endpoint
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-router.get('/logout', logout)
 
-export default router

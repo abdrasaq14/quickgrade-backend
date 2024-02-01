@@ -8,42 +8,26 @@ import { transporter } from '../utils/emailsender'
 import type { AuthRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
-import { Sequelize } from 'sequelize';
-import { Op } from 'sequelize';
-import Grading from '../model/gradingModel'
-import { ZodError, z } from "zod";
+
 const secret: string = (process.env.secret ?? '')
 
-  // Import AuthRequest type
-
-// Validation schema using Zod
-const studentSignupSchema = z.object({
-  firstName: z.string().min(2).max(50),
-  lastName: z.string().min(2).max(50),
-  faculty: z.string().min(2).max(50),
-  email: z.string().email(),
-  department: z.string().min(2).max(50),
-  password: z.string().min(6),
-});
 
 export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Validation using Zod schema
-    const validation = studentSignupSchema.parse(req.body);
+    console.log('req', req.body)
+    const { firstName, lastName, faculty, email, department, password } = req.body
 
-    const { firstName, lastName, faculty, email, department, password } = validation;
-
-    const existingStudent = await Student.findOne({ where: { email } });
+    const existingStudent = await Student.findOne({ where: { email } })
 
     if (existingStudent) {
       res.json({
         existingStudentError: 'Student already exists'
-      });
+      })
     } else {
-      const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0');
-      const matricNo = `${faculty.toUpperCase().slice(0, 3)}/${department.toUpperCase().slice(0, 3)}/${noOfStudent}`;
+      const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0')
+      const matricNo = `${faculty.toUpperCase().slice(0, 3)}/${department.toUpperCase().slice(0, 3)}/${noOfStudent}`
 
-      const hashedPassword = await bcrypt.hash(password, 12);
+      const hashedPassword = await bcrypt.hash(password, 12)
 
       const createdStudent = await Student.create({
         firstName,
@@ -53,21 +37,21 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
         faculty,
         department,
         matricNo
-      });
+      })
 
       if (!createdStudent) {
         res.json({
           failedSignup: 'Student signup failed'
-        });
+        })
       } else {
-        const student = await Student.findOne({ where: { email } });
+        const student = await Student.findOne({ where: { email } })
 
         if (!student) {
-          res.json({ studentNotFoundError: 'student record not found' });
+          res.json({ studentNotFoundError: 'student record not found' })
         } else {
-          req.session.email = email;
+          req.session.email = email
 
-          const totpSecret = speakeasy.generateSecret({ length: 20 });
+          const totpSecret = speakeasy.generateSecret({ length: 20 })
 
           // Update the student instance with TOTP details
           await student.update({
@@ -77,7 +61,7 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
               encoding: 'base32'
             }),
             otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-          });
+          })
 
           const mailOptions = {
             from: {
@@ -95,25 +79,20 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
         <br>
         Best, <br>
         The QuickGrade Team</h3>`
-          };
-
-          await transporter.sendMail(mailOptions);
-          console.log('successs');
-          res.json({ successfulSignup: 'Student signup successful' });
+          }
+          await transporter.sendMail(mailOptions)
+          console.log('successs')
+          res.json({ successfulSignup: 'Student signup successful' })
         }
       }
     }
   } catch (error) {
-    if (error instanceof ZodError) {
-      const formattedErrors = error.errors.map((err) => (err.message));
-      res.json({ validationError: formattedErrors });
-    } else {
-      console.error('Error creating student: ', error);
-      res.json({ InternaServerError: 'Internal server error' });
-    }
+    console.error('Error creating student: ', error)
+    res.json({
+      InternaServerError: 'Internal server error'
+    })
   }
-};
-
+}
 
 export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -308,5 +287,56 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
     }
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const getExamTimetable = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+
+    const studentId = req.student?.studentId
+
+    if (!studentId) {
+      res.json({ message: 'unauthorized' })
+    }
+    else {
+
+      const student = await Student.findByPk(studentId)
+
+      const semester = req.query.semester || 'first semester'
+
+      console.log(semester)
+
+      const exams = await Exam.findAll({
+        where: {
+          semester,
+          session: '2023/2024'
+        }
+      })
+
+      console.log(exams)
+      console.log(student)
+
+
+      res.json({ student, exams })
+    }
+  } catch (error) {
+    console.error('Error in getExamTimetable:', error)
+    res.json({ error })
+    // res.status(500).json({ error: errorMessage });
+  }
+}
+
+
+export const logout = async (req: AuthRequest, res: Response): Promise<any> => {
+  try {
+
+      res.clearCookie('token');
+      
+    // Send a success response
+    res.status(200).json({ message: 'Logout successful' })
+  } catch (error) {
+    console.error('Error in logout:', error)
+    const errorMessage = 'Internal Server Error'
+    res.status(500).json({ error: errorMessage })
   }
 }
