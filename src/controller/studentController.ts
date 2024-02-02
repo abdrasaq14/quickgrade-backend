@@ -141,9 +141,6 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
     const { matricNo, password } = req.body
     const existingStudent = await Student.findOne({ where: { matricNo } })
 
-    // const email = existingStudent?.dataValues.email
-    // req.session.email = email
-    // console.log('ssession', req.session.email)
     if (!existingStudent) {
       res.status(404).json({
         studentNotFoundError: 'Student not found'
@@ -158,8 +155,8 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
       } else {
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
 
-        res.cookie('token', token, { httpOnly: true, secure: false })
-
+        // res.cookie('token', token, { httpOnly: true, secure: false })
+        localStorage.setItem('token', token)
         res.json({
           successfulLogin: 'Login successful'
         })

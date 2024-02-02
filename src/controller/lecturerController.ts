@@ -130,8 +130,8 @@ export const lecturerLogin = async (
 
         console.log('lecturerToken', token)
 
-        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
-
+        // res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
+        localStorage.setItem('Lectuertoken', token)
         res.json({
           successfulLogin: 'login successful'
         })
