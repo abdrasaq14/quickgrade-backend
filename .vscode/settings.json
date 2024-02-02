@@ -5,6 +5,14 @@
       "driver": "SQLite",
       "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite",
       "name": "bb"
+    },
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite",
+      "name": "bbs"
     }
-  ]
+  ],
+  "editor.mouseWheelZoom": true,
+  "terminal.integrated.mouseWheelZoom": true
 }

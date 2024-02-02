@@ -10,7 +10,7 @@ import Exam from '../model/examModel'
 import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
 interface AuthRequestLecturer extends Request {
-  lecturer?: { lecturerId: string }; // Add the user property
+  lecturer?: { lecturerId: string } // Add the user property
 }
 
 const secret: string = (process.env.secret ?? '')
@@ -103,12 +103,10 @@ export const lecturerLogin = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-
   console.log('req', req.body)
   const { employeeID, password } = req.body
 
   try {
-
     const existingLecturer = await Lecturer.findOne({ where: { employeeID } })
 
     if (!existingLecturer) {
@@ -131,7 +129,7 @@ export const lecturerLogin = async (
         // console.log('login token', req.session.lecturerId)
 
         console.log('lecturerToken', token)
-        
+
         res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
 
         res.json({
@@ -380,7 +378,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
       try {
-        if (question.optionA === '' || question.optionB === '' || question.optionC === '' || question.optionD === '' || question.correctAnswer === '') {
+        if (question.optionA === '' && question.optionB === '' && question.optionC === '' && question.optionD === '' && question.correctAnswer === '') {
           return await Question.create({
             questionText: question.questionText,
             questionType: 'Theory',
@@ -393,10 +391,23 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
             courseCode,
             examId
           })
+        } else if (question.optionA === '' && question.optionB === '' && question.optionC === '' && question.optionD === '' && question.correctAnswer.length > 1) {
+          return await Question.create({
+            questionText: question.questionText,
+            questionType: 'fill-in-the-blank',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            examId
+          })
         } else {
           return await Question.create({
             questionText: question.questionText,
-            questionType: 'Objetive',
+            questionType: 'Objective',
             optionA: question.optionA,
             optionB: question.optionB,
             optionC: question.optionC,
@@ -423,10 +434,9 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
 }
 
 export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
-  
   try {
     const lecturerId = req.lecturer?.lecturerId
-    
+
     console.log(lecturerId)
 
     if (!lecturerId) {
@@ -443,17 +453,10 @@ export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Respon
         }
       })
 
-
       res.json({ lecturer, exam })
     }
   } catch (error) {
     console.error(error)
     console.log(error)
   }
-
-
-
-
-
-
 }
