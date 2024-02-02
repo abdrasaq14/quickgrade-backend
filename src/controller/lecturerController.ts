@@ -9,6 +9,9 @@ import Question from '../model/questionModel'
 import Exam from '../model/examModel'
 import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
+interface AuthRequestLecturer extends Request {
+  lecturer?: { lecturerId: string }; // Add the user property
+}
 
 const secret: string = (process.env.secret ?? '')
 
@@ -96,14 +99,16 @@ export const lecturerSignup = async (
 }
 
 export const lecturerLogin = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+
   console.log('req', req.body)
   const { employeeID, password } = req.body
 
   try {
+
     const existingLecturer = await Lecturer.findOne({ where: { employeeID } })
 
     if (!existingLecturer) {
@@ -120,10 +125,14 @@ export const lecturerLogin = async (
           inValidPassword: 'Invalid password'
         })
       } else {
-        const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '1h' })
-        req.session.lecturerId = token
-        console.log('login token', req.session.lecturerId)
-        // res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
+        const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '3h' })
+
+        // req.session.lecturerId = token
+        // console.log('login token', req.session.lecturerId)
+
+        console.log('lecturerToken', token)
+        
+        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
 
         res.json({
           successfulLogin: 'login successful'
@@ -243,13 +252,14 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-export const updateLecturerPassword = async (req: Request, res: Response): Promise<void> => {
-  const { userId } = req.params
+export const updateLecturerPassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  const studentId = req.student?.studentId
+
   const { newPassword } = req.body
 
   try {
     // Find the user by ID
-    const user = await Lecturer.findByPk(userId)
+    const user = await Lecturer.findByPk(studentId)
 
     if (!user) {
       res.status(404).json({ error: 'User not found' })
@@ -412,14 +422,38 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
   }
 }
 
-export const getLecturerDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
-  const lecturerId = req.lecturer?.lecturerId
-  console.log('lecturerId', lecturerId)
-  if (!lecturerId) {
-    console.log('unathorized')
-    res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
-  } else {
-    console.log('authorzied')
-    res.json({ lecturerAuthorized: 'access granted' })
+export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
+  
+  try {
+    const lecturerId = req.lecturer?.lecturerId
+    
+    console.log(lecturerId)
+
+    if (!lecturerId) {
+      res.json({ message: 'unauthorized' })
+    } else {
+      const semester = req.query.semester || 'First'
+
+      const lecturer = await Lecturer.findByPk(lecturerId)
+
+      const exam = await Exam.findAll({
+        where: {
+          semester,
+          session: '2023/2024'
+        }
+      })
+
+
+      res.json({ lecturer, exam })
+    }
+  } catch (error) {
+    console.error(error)
+    console.log(error)
   }
+
+
+
+
+
+
 }
