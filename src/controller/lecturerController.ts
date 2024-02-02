@@ -380,7 +380,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
       try {
-        if (question.optionA === '' || question.optionB === '' || question.optionC === '' || question.optionD === '' || question.correctAnswer === '') {
+        if (question.optionA === '' && question.optionB === '' && question.optionC === '' && question.optionD === '' && question.correctAnswer === '') {
           return await Question.create({
             questionText: question.questionText,
             questionType: 'Theory',
@@ -393,10 +393,23 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
             courseCode,
             examId
           })
+        } else if (question.optionA === '' && question.optionB === '' && question.optionC === '' && question.optionD === '' && question.correctAnswer.length > 1) {
+          return await Question.create({
+            questionText: question.questionText,
+            questionType: 'fill-in-the-blank',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            examId
+          })
         } else {
           return await Question.create({
             questionText: question.questionText,
-            questionType: 'Objetive',
+            questionType: 'Objective',
             optionA: question.optionA,
             optionB: question.optionB,
             optionC: question.optionC,

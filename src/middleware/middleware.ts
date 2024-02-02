@@ -8,23 +8,16 @@ interface AuthRequest extends Request {
   student?: { studentId: string } // Add the user property
 }
 
-<<<<<<< HEAD
-
-
-export async function authenticateStudent(req: AuthRequest, res: Response, next: NextFunction) {
-
-=======
 export async function authenticateStudent (req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
->>>>>>> b50c88f (improved the implementation that links the backend and frontend)
   try {
     const token = req.cookies.token
-    console.log('token', token)
+    console.log('token 1', token)
 
     if (!token) {
-      res.status(401).json({ error: 'Unauthorized - Token not provided' })
+      res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {
       const decoded = jwt.verify(token, secret) as { loginkey: string }
-      console.log(decoded)
+      console.log('decoded', decoded)
 
       const student = await Student.findOne({
         where: { studentId: decoded.loginkey }
@@ -34,8 +27,15 @@ export async function authenticateStudent (req: AuthRequest, res: Response, next
 
       next()
     }
-  } catch (error) {
-    console.error(error)
-    res.status(401).json({ error: 'Unauthorized - Invalid token' })
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      console.log('expired', error)
+      // Handle the case when the token is expired
+      res.json({ tokenExpiredError: 'Unauthorized - Token has expired' })
+    } else {
+      console.log('unknown', error)
+      // Handle other token verification errors
+      res.json({ verificationError: 'Unauthorized - Token verification failed' })
+    }
   }
 }
