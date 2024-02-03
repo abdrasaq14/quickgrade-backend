@@ -3,14 +3,8 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite",
-      "name": "bb"
-    },
-    {
-      "previewLimit": 50,
-      "driver": "SQLite",
-      "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite",
-      "name": "bbs"
+      "name": "quickgrade",
+      "database": "${workspaceFolder:live-project-backend-quickgrade}/database.sqlite"
     }
   ],
   "editor.mouseWheelZoom": true,

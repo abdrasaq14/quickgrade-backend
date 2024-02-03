@@ -1,5 +1,5 @@
 import Lecturer from '../model/lecturerModel'
-import { type Request, type Response, type NextFunction } from 'express'
+import { type Request, type Response } from 'express'
 import bcrypt from 'bcryptjs'
 import type { AuthRequest } from '../../extender'
 import { transporter } from '../utils/emailsender'
@@ -100,10 +100,8 @@ export const lecturerSignup = async (
 
 export const lecturerLogin = async (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): Promise<void> => {
-  console.log('req', req.body)
   const { employeeID, password } = req.body
 
   try {
@@ -125,13 +123,8 @@ export const lecturerLogin = async (
       } else {
         const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '3h' })
 
-        // req.session.lecturerId = token
-        // console.log('login token', req.session.lecturerId)
+        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
 
-        console.log('lecturerToken', token)
-
-        // res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
-        localStorage.setItem('Lectuertoken', token)
         res.json({
           successfulLogin: 'login successful'
         })
@@ -378,7 +371,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
       try {
-        if (question.optionA === '' && question.optionB === '' && question.optionC === '' && question.optionD === '' && question.correctAnswer === '') {
+        if (question.type === 'theory') {
           return await Question.create({
             questionText: question.questionText,
             questionType: 'Theory',
@@ -391,7 +384,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
             courseCode,
             examId
           })
-        } else if (question.optionA === '' && question.optionB === '' && question.optionC === '' && question.optionD === '' && question.correctAnswer.length > 1) {
+        } else if (question.type === 'fill-in-the-blank') {
           return await Question.create({
             questionText: question.questionText,
             questionType: 'fill-in-the-blank',
@@ -404,7 +397,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
             courseCode,
             examId
           })
-        } else {
+        } else if (question.type === 'objectives') {
           return await Question.create({
             questionText: question.questionText,
             questionType: 'Objective',

@@ -14,7 +14,6 @@ const secret: string = (process.env.secret ?? '')
 
 export const studentSignup = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    console.log('req', req.body)
     const { firstName, lastName, faculty, email, department, password } = req.body
 
     const existingStudent = await Student.findOne({ where: { email } })
@@ -81,13 +80,11 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
         The QuickGrade Team</h3>`
           }
           await transporter.sendMail(mailOptions)
-          console.log('successs')
           res.json({ successfulSignup: 'Student signup successful' })
         }
       }
     }
   } catch (error) {
-    console.error('Error creating student: ', error)
     res.json({
       InternaServerError: 'Internal server error'
     })
@@ -131,7 +128,6 @@ export const verifyOTP = async (req: AuthRequest, res: Response): Promise<void> 
       res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
   } catch (error) {
-    console.error(error)
     res.json({ internalServerError: 'Internal Server Error' })
   }
 }
@@ -155,16 +151,14 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
       } else {
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
 
-        // res.cookie('token', token, { httpOnly: true, secure: false })
-        localStorage.setItem('token', token)
+        res.cookie('token', token, { httpOnly: true, secure: false })
+        // localStorage.setItem('token', token)
         res.json({
           successfulLogin: 'Login successful'
         })
       }
     }
   } catch (error: any) {
-    console.error('Error during student login:', error)
-
     res.status(500).json({
       internalServerError: `Error: ${error}`
     })
@@ -233,11 +227,9 @@ export const updateStudentPassword = async (req: AuthRequest, res: Response): Pr
     // Find the user by ID
 
     const studentId = req.student?.studentId
-    console.log('studentId', studentId)
 
     const { newPassword } = req.body
 
-    console.log(req.body)
     const student = await Student.findByPk(studentId)
 
     if (!student) {
@@ -252,21 +244,16 @@ export const updateStudentPassword = async (req: AuthRequest, res: Response): Pr
       res.status(200).json({ message: 'Password updated successfully' })
     }
   } catch (error) {
-    console.error(error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
 
 export const getStudentDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const studentId = req.student?.studentId
-
-    if (!studentId) {
-      res.json({ unknownStudent: 'unauthorized' })
+    const semester = req.query.semester || 'First'
+    if (!semester) {
+      res.json({ noSemesterSelected: 'unauthorized' })
     } else {
-      const semester = req.query.semester || 'First'
-
-      const student = await Student.findByPk(studentId)
       const courses = await Courses.findAll({
         where: {
           semester,
@@ -274,27 +261,19 @@ export const getStudentDashboard = async (req: AuthRequest, res: Response): Prom
         }
       })
 
-      res.json({ student, courses })
+      res.json({ courses })
     }
   } catch (error) {
-    console.log(error)
     res.json({ internalServeError: 'internal server error' })
   }
 }
 
 export const getExamTimetable = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const studentId = req.student?.studentId
-
-    if (!studentId) {
-      res.json({ message: 'unauthorized' })
+    const semester = req.query.semester
+    if (!semester) {
+      res.json({ noSemesterSelected: 'unauthorized' })
     } else {
-      const student = await Student.findByPk(studentId)
-
-      const semester = req.query.semester || 'first semester'
-
-      console.log(semester)
-
       const exams = await Exam.findAll({
         where: {
           semester,
@@ -302,14 +281,10 @@ export const getExamTimetable = async (req: AuthRequest, res: Response): Promise
         }
       })
 
-      console.log(exams)
-      console.log(student)
-
-      res.json({ student, exams })
+      res.json({ exams })
     }
   } catch (error) {
-    console.error('Error in getExamTimetable:', error)
-    res.json({ error })
+    res.json({ internalServerError: error })
     // res.status(500).json({ error: errorMessage });
   }
 }
@@ -319,13 +294,11 @@ export const takeExam = async (req: AuthRequest, res: Response): Promise<void> =
     const { courseCode } = req.params
     const questions = await Question.findAll({ where: { courseCode } })
     if (!questions) {
-      console.log('no question')
       res.json({ questionNotAvailable: 'no question found' })
     } else {
       res.json({ questions })
     }
   } catch (error) {
-    console.log('error', error)
     res.json({ internalServerError: 'internal server error' })
   }
 }
@@ -336,7 +309,6 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
     // Send a success response
     res.status(200).json({ message: 'Logout successful' })
   } catch (error) {
-    console.error('Error in logout:', error)
     const errorMessage = 'Internal Server Error'
     res.status(500).json({ error: errorMessage })
   }

@@ -22,6 +22,7 @@ import resetPasswordRouter from './routes/reset_pass'
 import gradeRouter from './routes/grade'
 import examResultRouter from './routes/examResultRoute'
 import examTimeTableRoute from './routes/examinationTimetable_Route'
+import protectedRouter from './routes/verifyTokenRoute'
 // import passResetRouter from './routes/reset-password'
 
 config()
@@ -60,6 +61,7 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, '../', 'public')))
 
 app.use('/otp', otpRouter)
+app.use('/protected-routes', protectedRouter)
 app.use('/students', studentRouter)
 app.use('/lecturers', lecturerRouter)
 app.use('/oauth', oauthRouter)
