@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express'
 
 import jwt from 'jsonwebtoken'
 import Lecturer from '../model/lecturerModel'
 
 interface AuthRequestLecturer extends Request {
-  lecturer?: { lecturerId: string }; // Add the user property
+  lecturer?: { lecturerId: string } // Add the user property
 }
 const secret: string = (process.env.secret ?? '')
 
@@ -27,14 +27,13 @@ const secret: string = (process.env.secret ?? '')
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 
-
-export async function authenticateLecturer (req: AuthRequestLecturer, res: Response, next: NextFunction) {
+export async function authenticateLecturer (req: AuthRequestLecturer, res: Response, next: NextFunction): Promise<void> {
   try {
     // console.log('auth token', req.session.lecturerId)
     // const token = req.session.lecturerToken
-      const token = req.cookies.lecturerToken
+    const token = req.cookies.lecturerToken
 
-      console.log('lecturer-token', token)
+    console.log('lecturer-token', token)
 
     if (!token) {
       res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
