@@ -138,14 +138,16 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
     const existingStudent = await Student.findOne({ where: { matricNo } })
 
     if (!existingStudent) {
-      res.status(404).json({
+      console.log('student not found')
+      res.json({
         studentNotFoundError: 'Student not found'
       })
     } else {
       const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password)
 
       if (!isPasswordValid) {
-        res.status(401).json({
+        console.log('invalid password')
+        res.json({
           inValidPassword: 'Invalid password'
         })
       } else {
@@ -159,7 +161,7 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
       }
     }
   } catch (error: any) {
-    res.status(500).json({
+    res.json({
       internalServerError: `Error: ${error}`
     })
   }
