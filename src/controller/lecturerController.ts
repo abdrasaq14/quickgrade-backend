@@ -9,8 +9,6 @@ import Question from '../model/questionModel'
 import Exam from '../model/examModel'
 import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
-import ExamResult from '../model/examResultModel'
-import StudentResponse from '../model/studentResponseModel'
 interface AuthRequestLecturer extends Request {
   lecturer?: { lecturerId: string } // Add the user property
 }
@@ -132,8 +130,7 @@ export const lecturerLogin = async (
         })
       }
     }
-  } 
-  catch (error: any) {
+  } catch (error: any) {
     console.error('Error during lecturer login:', error)
 
     res.status(500).json({
@@ -418,60 +415,14 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
         console.log('error', error)
       }
     }))
-
-    if (!createdQuestions.some(question => !question)) {
+    if (!createdQuestions) {
       console.log('unable to create questions')
     } else {
       console.log('question created successfully')
       res.json({ examQuestionCreated: 'exam created successfully' })
     }
-
-    const markingResult = await markExam(Exam, Question, StudentResponse)
-
-    if (!markingResult) {
-      res.status(500).json({ error: 'Unable to mark the exam' })
-    } else {
-      res.json({ examQuestionCreated: 'Exam and questions created and marked successfully', markingResult })
-    }
   } catch (error) {
     console.log(error)
-  }
-
-  async function markExam (Exam: any, Question: any, StudentResponse: any): Promise<any> {
-    try {
-      const studentId = 'studentId'
-
-      let totalMarks = 0
-
-      for (let i = 0; i < Question.length; i++) {
-        const question = Question[i]
-        const correctAnswer = question.correctAnswer
-
-        const studentAnswer = StudentResponse[i].responseText
-        const isCorrect = studentAnswer === correctAnswer
-
-        const scorePerQuestion = Exam.totalScore / Exam.totalNoOfQuestions
-        const questionScore = isCorrect ? scorePerQuestion : 0
-
-        totalMarks += questionScore
-      }
-
-      await ExamResult.create({
-        examId: Exam.examId,
-        studentId,
-        totalMarks,
-        lecturerId: Exam.lecturerId,
-        courseCode: Exam.courseCode,
-        semester: Exam.semester,
-        faculty: Exam.faculty,
-        session: Exam.session
-      })
-
-      return { totalMarks }
-    } catch (error) {
-      console.error(error)
-      return null
-    }
   }
 }
 
