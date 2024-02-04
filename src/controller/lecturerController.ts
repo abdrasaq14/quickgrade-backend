@@ -117,7 +117,7 @@ export const lecturerLogin = async (
         existingLecturer.dataValues.password
       )
       if (!isPasswordValid) {
-        res.status(401).json({
+        res.json({
           inValidPassword: 'Invalid password'
         })
       } else {
@@ -130,7 +130,8 @@ export const lecturerLogin = async (
         })
       }
     }
-  } catch (error: any) {
+  } 
+  catch (error: any) {
     console.error('Error during lecturer login:', error)
 
     res.status(500).json({
