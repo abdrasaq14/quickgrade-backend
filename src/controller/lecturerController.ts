@@ -1,4 +1,5 @@
 import Lecturer from '../model/lecturerModel'
+import Student from '../model/studentModel'
 import { type Request, type Response } from 'express'
 import bcrypt from 'bcryptjs'
 import type { AuthRequest } from '../../extender'
@@ -121,7 +122,7 @@ export const lecturerLogin = async (
           inValidPassword: 'Invalid password'
         })
       } else {
-        const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '3h' })
+        const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '1h' })
 
         res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
 
@@ -428,26 +429,27 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
 
 export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
   try {
-    const lecturerId = req.lecturer?.lecturerId
+    
+      const semester = req.query.semester || 'first semester'
 
-    console.log(lecturerId)
+      const exams = await Exam.findAll(
+      //   {
+      //   where: {
+      //     semester,
+      //     session: '2023/2024'
+      //   }
+      // }
+      )
 
-    if (!lecturerId) {
-      res.json({ message: 'unauthorized' })
-    } else {
-      const semester = req.query.semester || 'First'
+      const student = await Student.findAll()
 
-      const lecturer = await Lecturer.findByPk(lecturerId)
+      const noOfStudents = student.length
 
-      const exam = await Exam.findAll({
-        where: {
-          semester,
-          session: '2023/2024'
-        }
-      })
 
-      res.json({ lecturer, exam })
-    }
+      const examsTotal = exams.map((exam) => ({...exam.dataValues,noOfStudents}));
+
+      res.json({ examsTotal })
+    
   } catch (error) {
     console.error(error)
     console.log(error)
