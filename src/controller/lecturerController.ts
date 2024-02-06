@@ -318,9 +318,9 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
       examInstruction: instruction,
       semester,
       session,
-      firstSection: eachSectionDetail[0],
-      secondSection: eachSectionDetail[1],
-      thirdSection: eachSectionDetail[2],
+      firstSection: eachSectionDetail[0] || '',
+      secondSection: eachSectionDetail[1] || '',
+      thirdSection: eachSectionDetail[2] || '',
       faculty,
       lecturerId,
       department,
@@ -412,7 +412,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
         }
       } catch (error) {
         res.json({ error: 'Internal Server Error' })
-        console.log('error', error)
+        console.log('error 1', error)
       }
     }))
 
@@ -467,6 +467,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
         console.log('unable to grade student', studentResponseAutograding)
         res.json({ unableToGradeStudent: 'Internal Server Error' })
       } else {
+        console.log('studentResponseAutograding successful')
         res.json({ objectivesAutoGradedSuccessfully: 'exam created successfully' })
       }
     }
@@ -476,7 +477,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
 }
 export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
   try {
-    const semester = req.query.semester || 'first semester'
+    // const semester = req.query.semester || 'first semester'
 
     const exams = await Exam.findAll(
 
