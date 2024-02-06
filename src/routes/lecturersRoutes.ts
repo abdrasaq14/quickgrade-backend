@@ -1,5 +1,5 @@
 import express from 'express'
-import { lecturerSignup, updateLecturerPassword, lecturerLogin, verifyOTP, resetPassword, resetPasswordToken, setExamQuestions, getLecturerDashboard } from '../controller/lecturerController'
+import { lecturerSignup, updateLecturerPassword, lecturerLogin, verifyOTP, resetPassword, resetPasswordToken, setExamQuestions, getLecturerDashboard, getGradedExams, gradeExam } from '../controller/lecturerController'
 
 const router = express.Router()
 
@@ -19,6 +19,13 @@ router.post('/reset-password/:token', resetPasswordToken)
 router.get('/dashboard', getLecturerDashboard)
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.post('/set-exam', setExamQuestions)
+
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.post('/grade-exam-objectives/:courseCode', gradeExam)
+
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.get('/get-graded-exam-objectives/', getGradedExams)
+
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.put('students/update-password/:userId', updateLecturerPassword)
 // Retrieve and return lecturer profile

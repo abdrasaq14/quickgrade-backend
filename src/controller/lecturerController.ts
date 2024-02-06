@@ -10,6 +10,9 @@ import Question from '../model/questionModel'
 import Exam from '../model/examModel'
 import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
+import StudentResponse from '../model/studentResponseModel'
+import Grading from '../model/gradingModel'
+
 interface AuthRequestLecturer extends Request {
   lecturer?: { lecturerId: string } // Add the user property
 }
@@ -271,53 +274,6 @@ export const updateLecturerPassword = async (req: AuthRequest, res: Response): P
   }
 }
 
-// export const getLecturerProfile = async (req: Request, res: Response): Promise<void> => {
-//   try {
-//     // Assuming that the authenticated lecturer's details are stored in req.user after authentication
-//     const lecturerProfile = req.user
-
-//     // You can customize the data you want to include in the profile response
-//     const profileResponse = {
-//       lecturerId: lecturerProfile.lecturerId,
-//       employeeID: lecturerProfile.employeeID,
-//       email: lecturerProfile.email,
-//       faculty: lecturerProfile.faculty,
-//       department: lecturerProfile.department
-//       // Add more fields as needed
-//     }
-
-//     res.status(200).json(profileResponse)
-//   } catch (error) {
-//     console.error(error)
-//     res.status(500).json({ error: 'Internal Server Error' })
-//   }
-// }
-
-export const createCourse = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { courseCode, courseTitle, creditUnit, session, semester } = req.body
-
-    const newCourse = await Courses.create({
-      courseCode,
-      courseTitle,
-      creditUnit,
-      session,
-      semester
-    })
-    if (!newCourse) {
-      res.json({
-        message: 'unable to create course'
-      })
-    } else {
-      res.json({
-        message: 'course created succesfully'
-      })
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 export const getCourses = async (req: Request, res: Response): Promise<void> => {
   try {
     const { semester, session } = req.body
@@ -348,16 +304,23 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
   try {
     console.log('req.body', req.body)
     const {
-      lecturerId, examDuration, courseTitle, courseCode, semester, session, faculty, department, examDate,
-      totalScore, questions
+      lecturerId, examDuration, instruction, courseTitle, courseCode, semester, session, faculty, department, examDate,
+      totalScore, questions, sections
     } = req.body
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const eachSectionDetail = sections.map((section: Record<string, string>) => {
+      return `${section.sectionAlphabet}|${section.ScoreObtainable}|${section.questionType}`
+    })
     const createdExam = await Exam.create({
       examDuration,
       courseTitle,
       courseCode,
+      examInstruction: instruction,
       semester,
       session,
+      firstSection: eachSectionDetail[0],
+      secondSection: eachSectionDetail[1],
+      thirdSection: eachSectionDetail[2],
       faculty,
       lecturerId,
       department,
@@ -367,8 +330,6 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     })
 
     const examId = createdExam.dataValues.examId
-    console.log('examId', examId)
-
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
       try {
@@ -427,31 +388,145 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
   }
 }
 
+export const gradeExam = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { courseCode } = req.params
+    console.log('courseCode', courseCode)
+    console.log('req.body', req.body)
+    const { studentId, examId, assembledQuestions } = req.body
+    const semester = await Exam.findOne({ attributes: ['semester'], where: { examId } })
+    const studentResponse = await Promise.all(assembledQuestions.map(async (response: Record<string, any>) => {
+      try {
+        if (response.questionType === 'Objective') {
+          const correctAnswer = await Question.findOne({ where: { questionId: response.questionId } })
+
+          return await StudentResponse.create({
+            studentId,
+            examId,
+            semester: semester?.dataValues.semester,
+            courseCode,
+            questionId: response.questionId,
+            responseText: response.questionText,
+            isCorrect: correctAnswer?.dataValues.correctAnswer === response.typedAnswer
+          })
+        }
+      } catch (error) {
+        res.json({ error: 'Internal Server Error' })
+        console.log('error', error)
+      }
+    }))
+
+    if (!studentResponse) {
+      console.log('unable to grade student response')
+    } else {
+      // to get the number of objective questions answered by each student
+      const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
+      // filter only the current course in case of existing courses
+      const filterCurrentCourseOnly = findStudentResponse.filter((currentCourse) => currentCourse.dataValues.courseCode === courseCode)
+      console.log('filterCurrentCourseOnly', filterCurrentCourseOnly)
+      // reducing it to the number of questions in each course
+      const result = filterCurrentCourseOnly.reduce((acc: Record<string, number>, curr) => {
+        const key = curr.dataValues.courseCode
+        if (!acc[key]) {
+          acc[key] = 0
+        }
+        acc[key]++
+
+        return acc
+      }, {})
+
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      const eachQuetionAllocatedMarks = Object.keys(result).map(async (key) => {
+        const course = await Exam.findOne({ where: { courseCode: key } })
+        console.log('course', course?.dataValues)
+        if (course) {
+          // getting the allocated mark for that section
+          const AllocatedTotalMarks = Number(course.dataValues.firstSection.split('|')[1])
+          // getting the marks for each question
+          const eachQuestionMark = AllocatedTotalMarks / result[key]
+          let count = 0
+          // eslint-disable-next-line array-callback-return
+          filterCurrentCourseOnly.map((studentResponse) => {
+            studentResponse.dataValues.isCorrect === true ? count++ : count += 0
+          })
+          const objectiveGrade = eachQuestionMark * count
+          const theoryGrade = 0
+          await Grading.create({
+            studentId,
+            examId,
+            courseCode: key,
+            theoryGrade: 0,
+            objectiveGrade: eachQuestionMark * count,
+            totalGrade: objectiveGrade + theoryGrade,
+            semester: course.dataValues.semester
+          })
+        }
+      })
+      const studentResponseAutograding = await Promise.all(eachQuetionAllocatedMarks)
+      if (!studentResponseAutograding) {
+        console.log('unable to grade student', studentResponseAutograding)
+        res.json({ unableToGradeStudent: 'Internal Server Error' })
+      } else {
+        res.json({ objectivesAutoGradedSuccessfully: 'exam created successfully' })
+      }
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
   try {
-    
-      const semester = req.query.semester || 'first semester'
+    const semester = req.query.semester || 'first semester'
 
-      const exams = await Exam.findAll(
-      //   {
-      //   where: {
-      //     semester,
-      //     session: '2023/2024'
-      //   }
-      // }
-      )
+    const exams = await Exam.findAll(
 
-      const student = await Student.findAll()
+    )
 
-      const noOfStudents = student.length
+    const student = await Student.findAll()
 
+    const noOfStudents = student.length
 
-      const examsTotal = exams.map((exam) => ({...exam.dataValues,noOfStudents}));
+    const examsTotal = exams.map((exam) => ({ ...exam.dataValues, noOfStudents }))
 
-      res.json({ examsTotal })
-    
+    res.json({ examsTotal })
   } catch (error) {
     console.error(error)
+    console.log(error)
+  }
+}
+
+export const getGradedExams = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
+  try {
+    const { lecturerId, semester } = req.query
+    console.log('lecturerId', lecturerId)
+    const checkExamQuestions = await Exam.findAll({ where: { lecturerId } })
+    const firstSemester = checkExamQuestions.filter((filterBySemester) => filterBySemester.dataValues.semester === semester)
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-confusing-void-expression
+    await Promise.all(firstSemester.map(async (eachStudentThatTookExam) => {
+      const examId = eachStudentThatTookExam.dataValues.examId
+      return await Grading.findAll({ where: { examId } })
+        .then(async gradings => {
+          return await Promise.all(gradings.map(async grading => {
+            const studentId = grading.dataValues.studentId
+            return await Student.findOne({ attributes: ['matricNo'], where: { studentId } })
+              .then(matricNo => {
+                const returnedObject = {
+                  ...grading.dataValues,
+                  matricNo: matricNo?.dataValues.matricNo ?? ''
+                }
+                return returnedObject
+              })
+          }))
+        })
+    })).then(response => {
+      const StudentResult = response.flat()
+      console.log('StudentResult', StudentResult)
+      res.json({ StudentResult })
+    }).catch(error => {
+      console.log(error)
+    })
+  } catch (error) {
     console.log(error)
   }
 }

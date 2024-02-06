@@ -2,7 +2,9 @@ import { DataTypes, Model } from 'sequelize'
 import sequelize from '../database/databaseSqlite'
 import { v4 as uuidv4 } from 'uuid'
 
-class StudentResponse extends Model {}
+class StudentResponse extends Model {
+  static isCorrect: any
+}
 
 StudentResponse.init(
   {
@@ -25,6 +27,14 @@ StudentResponse.init(
       allowNull: false
     },
     responseText: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    courseCode: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    semester: {
       type: DataTypes.STRING,
       allowNull: false
     },

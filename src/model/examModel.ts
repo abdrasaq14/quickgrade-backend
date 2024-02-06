@@ -24,7 +24,23 @@ Exam.init(
       type: DataTypes.STRING,
       allowNull: false
     },
+    examInstruction: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     courseCode: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    firstSection: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    secondSection: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    thirdSection: {
       type: DataTypes.STRING,
       allowNull: false
     },
