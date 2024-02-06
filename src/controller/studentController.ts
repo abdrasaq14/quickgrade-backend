@@ -9,6 +9,7 @@ import type { AuthRequest } from '../../extender'
 import crypto from 'crypto'
 import speakeasy from 'speakeasy'
 import Question from '../model/questionModel'
+import StudentResponse from '../model/studentResponseModel'
 
 const secret: string = (process.env.secret ?? '')
 
@@ -295,13 +296,60 @@ export const takeExam = async (req: AuthRequest, res: Response): Promise<void> =
   try {
     const { courseCode } = req.params
     const questions = await Question.findAll({ where: { courseCode } })
-    if (!questions) {
+    const examsDetail = await Exam.findOne({ where: { courseCode } })
+    if (!questions && !examsDetail) {
       res.json({ questionNotAvailable: 'no question found' })
     } else {
-      res.json({ questions })
+      res.json({ questions, examsDetail })
     }
   } catch (error) {
     res.json({ internalServerError: 'internal server error' })
+  }
+}
+
+export const getObjectivesScore = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { studentId } = req.body
+    const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
+    const result = findStudentResponse.reduce((acc: Record<string, number>, curr) => {
+      const key = curr.dataValues.courseCode
+      if (!acc[key]) {
+        acc[key] = 0
+      }
+      acc[key]++
+
+      return acc
+    }, {})
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    const eachQuetionAllocatedMarks = Object.keys(result).map(async (key) => {
+      const course = await Exam.findOne({ where: { courseCode: key } })
+      console.log('course', course?.dataValues)
+      if (course) {
+        const AllocatedTotalMarks = Number(course.dataValues.firstSection.split('|')[1])
+        console.log('AllocatedTotalMarks', AllocatedTotalMarks)
+        const eachQuestionMark = AllocatedTotalMarks / result[key]
+        console.log('eachQuestionMark', eachQuestionMark)
+        let count = 0
+
+        // eslint-disable-next-line array-callback-return
+        findStudentResponse.filter((course) => {
+          return course.dataValues.courseCode === key
+        }).forEach((course) => {
+          course.dataValues.isCorrect === true ? count++ : count += 0
+        })
+        return {
+          [key]: eachQuestionMark * count,
+          sectionMark: AllocatedTotalMarks,
+          semester: course.dataValues.semester
+        }
+      }
+    })
+    await Promise.all(eachQuetionAllocatedMarks).then((StudentResult) => {
+      console.log('data', StudentResult)
+      res.json({ StudentResult })
+    })
+  } catch (error) {
+    console.log('error', error)
   }
 }
 export const logout = async (req: AuthRequest, res: Response): Promise<void> => {

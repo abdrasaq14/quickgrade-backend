@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../database/databaseSqlite'
 import { v4 as uuidv4 } from 'uuid'
-
+import Exam from './examModel'
 class Grading extends Model {}
 
 Grading.init(
@@ -16,17 +16,32 @@ Grading.init(
       type: DataTypes.UUID,
       allowNull: false
     },
-    responseId: {
-      type: DataTypes.UUID,
+    courseCode: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    examId: {
+      type: DataTypes.STRING,
+      references: {
+        model: Exam,
+        key: 'examId'
+      }
+    },
+    semester: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    objectiveGrade: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    department: {
-      type: DataTypes.STRING,
-      allowNull: false
+    theoryGrade: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
-    grade: {
-      type: DataTypes.STRING,
-      allowNull: false
+    totalGrade: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   },
   {
