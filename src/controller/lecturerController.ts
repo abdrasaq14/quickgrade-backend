@@ -12,7 +12,6 @@ import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
 import StudentResponse from '../model/studentResponseModel'
 import Grading from '../model/gradingModel'
-import Student from '../model/studentModel'
 
 interface AuthRequestLecturer extends Request {
   lecturer?: { lecturerId: string } // Add the user property
@@ -477,27 +476,19 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
 }
 export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
   try {
-    
-      const semester = req.query.semester || 'first semester'
+    const semester = req.query.semester || 'first semester'
 
-      const exams = await Exam.findAll(
-      //   {
-      //   where: {
-      //     semester,
-      //     session: '2023/2024'
-      //   }
-      // }
-      )
+    const exams = await Exam.findAll(
 
-      const student = await Student.findAll()
+    )
 
-      const noOfStudents = student.length
+    const student = await Student.findAll()
 
+    const noOfStudents = student.length
 
-      const examsTotal = exams.map((exam) => ({...exam.dataValues,noOfStudents}));
+    const examsTotal = exams.map((exam) => ({ ...exam.dataValues, noOfStudents }))
 
-      res.json({ examsTotal })
-    
+    res.json({ examsTotal })
   } catch (error) {
     console.error(error)
     console.log(error)
