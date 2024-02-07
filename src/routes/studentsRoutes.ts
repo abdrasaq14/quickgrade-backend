@@ -28,7 +28,7 @@ router.get('/dashboard/take-exams/:courseCode', takeExam)
 router.get('/dashboard/enrolled-courses', getExamTimetable)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-router.post('/dashboard/get-results', getObjectivesScore)
+router.get('/dashboard/get-results', getObjectivesScore)
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.put('/dashboard/change-password', updateStudentPassword)
