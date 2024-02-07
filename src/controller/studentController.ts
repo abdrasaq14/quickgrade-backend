@@ -309,8 +309,13 @@ export const takeExam = async (req: AuthRequest, res: Response): Promise<void> =
 
 export const getObjectivesScore = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { studentId } = req.body
+    // const { studentId } = req.body
+
+    const { studentId, semester } = req.query;
+    console.log('query:', req.query)
+
     const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
+
     const result = findStudentResponse.reduce((acc: Record<string, number>, curr) => {
       const key = curr.dataValues.courseCode
       if (!acc[key]) {
@@ -320,6 +325,14 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
 
       return acc
     }, {})
+
+    const enrolledExam = await StudentResponse.findAll({
+      where: {
+        studentId,
+        semester,
+      },
+    });
+
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     const eachQuetionAllocatedMarks = Object.keys(result).map(async (key) => {
       const course = await Exam.findOne({ where: { courseCode: key } })
@@ -346,7 +359,7 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
     })
     await Promise.all(eachQuetionAllocatedMarks).then((StudentResult) => {
       console.log('data', StudentResult)
-      res.json({ StudentResult })
+      res.json({ StudentResult, enrolledExam })
     })
   } catch (error) {
     console.log('error', error)
