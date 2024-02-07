@@ -311,7 +311,7 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
   try {
     // const { studentId } = req.body
 
-    const { studentId, semester } = req.query;
+    const { studentId, semester } = req.query
     console.log('query:', req.query)
 
     const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
@@ -329,19 +329,19 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
     const enrolledExam = await StudentResponse.findAll({
       where: {
         studentId,
-        semester,
-      },
-    });
+        semester
+      }
+    })
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     const eachQuetionAllocatedMarks = Object.keys(result).map(async (key) => {
       const course = await Exam.findOne({ where: { courseCode: key } })
-      console.log('course', course?.dataValues)
+
       if (course) {
         const AllocatedTotalMarks = Number(course.dataValues.firstSection.split('|')[1])
-        console.log('AllocatedTotalMarks', AllocatedTotalMarks)
+
         const eachQuestionMark = AllocatedTotalMarks / result[key]
-        console.log('eachQuestionMark', eachQuestionMark)
+
         let count = 0
 
         // eslint-disable-next-line array-callback-return
@@ -351,14 +351,14 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
           course.dataValues.isCorrect === true ? count++ : count += 0
         })
         return {
-          [key]: eachQuestionMark * count,
+          courseCode: key,
+          totalScore: eachQuestionMark * count,
           sectionMark: AllocatedTotalMarks,
           semester: course.dataValues.semester
         }
       }
     })
     await Promise.all(eachQuetionAllocatedMarks).then((StudentResult) => {
-      console.log('data', StudentResult)
       res.json({ StudentResult, enrolledExam })
     })
   } catch (error) {
