@@ -311,6 +311,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
     const eachSectionDetail = sections.map((section: Record<string, string>) => {
       return `${section.sectionAlphabet}|${section.ScoreObtainable}|${section.questionType}`
     })
+
     const createdExam = await Exam.create({
       examDuration,
       courseTitle,
@@ -456,8 +457,8 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
             examId,
             courseCode: key,
             theoryGrade: 0,
-            objectiveGrade: eachQuestionMark * count,
-            totalGrade: objectiveGrade + theoryGrade,
+            objectiveGrade: parseFloat((eachQuestionMark * count).toFixed(2)),
+            totalGrade: parseFloat((objectiveGrade + theoryGrade).toFixed(2)),
             semester: course.dataValues.semester
           })
         }
