@@ -11,7 +11,6 @@ interface AuthRequest extends Request {
 export async function authenticateStudent (req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const token = req.cookies.token
-    console.log('token 1', token)
 
     if (!token) {
       res.json({ noTokenError: 'Unauthorized - Token not provided' })

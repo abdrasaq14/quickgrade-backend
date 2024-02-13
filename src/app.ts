@@ -11,7 +11,6 @@ import cookieParser from 'cookie-parser'
 import sequelize from './database/databaseSqlite'
 import logger from 'morgan'
 import cors from 'cors'
-import session from 'express-session'
 import indexRouter from './routes/index'
 import otpRouter from './routes/otp'
 import oauthRouter from './routes/oauth'
@@ -23,7 +22,11 @@ import gradeRouter from './routes/grade'
 import examResultRouter from './routes/examResultRoute'
 import examTimeTableRoute from './routes/examinationTimetable_Route'
 import protectedRouter from './routes/verifyTokenRoute'
-// import passResetRouter from './routes/reset-password'
+const secret: string = (process.env.secret ?? '')
+interface customCookie extends cookieParser.CookieParseOptions {
+  httpOnly: boolean
+  secure: boolean
+}
 
 config()
 
@@ -38,13 +41,6 @@ sequelize
 const app = express()
 
 app.use(
-  session({
-    secret: process.env.secret ?? '',
-    resave: false,
-    saveUninitialized: true
-  })
-)
-app.use(
   cors({
     origin: 'http://localhost:5173',
     credentials: true
@@ -52,12 +48,15 @@ app.use(
 )
 
 // view engine setup
-app.set('views', path.join(__dirname, '../', 'views'))
-app.set('view engine', 'ejs')
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+app.use(cookieParser(secret, {
+  httpOnly: true,
+  secure: false
+} as customCookie)
+)
 app.use(express.static(path.join(__dirname, '../', 'public')))
 
 app.use('/otp', otpRouter)

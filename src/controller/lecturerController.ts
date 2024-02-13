@@ -127,7 +127,7 @@ export const lecturerLogin = async (
       } else {
         const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '1h' })
 
-        res.cookie('lecturerToken', token, { httpOnly: true, secure: false })
+        res.cookie('lecturerToken', token)
 
         res.json({
           successfulLogin: 'login successful'
