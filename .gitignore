@@ -1,9 +1,9 @@
 node_modules
-**/lib
-**/yarn.lock
-**/yarn-error.log
-**/.prettierrc
-**/database.sqlite
+lib
+yarn.lock
+yarn-error.log
+.prettierrc
+database.sqlite
 **/.DS_Store
-**/.env
-**/yarn-error.log
+.env
+yarn-error.log
