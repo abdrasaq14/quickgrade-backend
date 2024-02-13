@@ -159,6 +159,12 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
         res.json({
           successfulLogin: 'Login successful'
         })
+        // Check if the token is set
+        if (res.headersSent && res.getHeader('Set-Cookie')) {
+          console.log('Token is set in the response cookies')
+        } else {
+          console.log('Token is not set in the response cookies')
+        }
       }
     }
   } catch (error: any) {
