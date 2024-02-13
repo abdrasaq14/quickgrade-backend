@@ -8,7 +8,7 @@ const secret: string = (process.env.secret ?? '')
 export async function checkAndVerifyStudentToken (req: Request, res: Response): Promise<void> {
   try {
     const token = req.cookies.token
-    
+
     if (!token) {
       res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {
