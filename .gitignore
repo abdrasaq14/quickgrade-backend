@@ -5,3 +5,5 @@ yarn-error.log
 .prettierrc
 database.sqlite
 .DS_Store
+.env
+yarn-error.log
