@@ -153,7 +153,7 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
         })
       } else {
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
-        console.log('token', token)
+        console.log('tokenLogin', token)
         res.cookie('token', token)
         // localStorage.setItem('token', token)
         res.json({
