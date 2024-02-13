@@ -26,6 +26,7 @@ const secret: string = (process.env.secret ?? '')
 interface customCookie extends cookieParser.CookieParseOptions {
   httpOnly: boolean
   secure: boolean
+  sameSite: string
 }
 
 config()
@@ -54,7 +55,8 @@ app.use(express.urlencoded({ extended: false }))
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 app.use(cookieParser(secret, {
   httpOnly: true,
-  secure: false
+  secure: true,
+  sameSite: 'none'
 } as customCookie)
 )
 app.use(express.static(path.join(__dirname, '../', 'public')))
