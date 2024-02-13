@@ -1,7 +1,7 @@
 node_modules
 lib
 .env
-.yarn-error.log
+yarn-error.log
 .DS_Store
 yarn.lock
 .prettierrc
