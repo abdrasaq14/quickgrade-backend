@@ -48,7 +48,6 @@ app.use(
   })
 )
 
-// view engine setup
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
