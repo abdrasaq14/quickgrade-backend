@@ -236,7 +236,7 @@ export const updateStudentPassword = async (req: AuthRequest, res: Response): Pr
     const student = await Student.findByPk(studentId)
 
     if (!student) {
-      res.status(404).json({ error: 'User not found' })
+      res.json({ unknownStudent: 'User not found' })
     } else {
       // Update the user's password
       student.dataValues.password = newPassword
@@ -244,10 +244,10 @@ export const updateStudentPassword = async (req: AuthRequest, res: Response): Pr
       // Save the updated user to the database
       await student.save()
 
-      res.status(200).json({ message: 'Password updated successfully' })
+      res.json({ passwordChangedSuccessfully: 'Password updated successfully' })
     }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' })
+    res.json({ error: 'Internal Server Error' })
   }
 }
 
