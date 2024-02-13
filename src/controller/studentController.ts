@@ -44,13 +44,12 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
           failedSignup: 'Student signup failed'
         })
       } else {
+        console.log('I am here')
         const student = await Student.findOne({ where: { email } })
 
         if (!student) {
           res.json({ studentNotFoundError: 'student record not found' })
         } else {
-          req.session.email = email
-
           const totpSecret = speakeasy.generateSecret({ length: 20 })
 
           // Update the student instance with TOTP details
