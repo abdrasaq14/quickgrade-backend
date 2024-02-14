@@ -10,14 +10,12 @@ interface AuthRequest extends Request {
 
 export async function authenticateStudent (req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
-    const token = req.cookies.token
-    console.log('student-token', token)
+    const token = req.headers.authorization?.split(' ')[1]
+    console.log('token', token)
     if (!token) {
       res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {
       const decoded = jwt.verify(token, secret) as { loginkey: string }
-      console.log('decoded', decoded)
-
       const student = await Student.findOne({
         where: { studentId: decoded.loginkey }
       })
@@ -28,11 +26,9 @@ export async function authenticateStudent (req: AuthRequest, res: Response, next
     }
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      console.log('expired', error)
       // Handle the case when the token is expired
       res.json({ tokenExpiredError: 'Unauthorized - Token has expired' })
     } else {
-      console.log('unknown', error)
       // Handle other token verification errors
       res.json({ verificationError: 'Unauthorized - Token verification failed' })
     }

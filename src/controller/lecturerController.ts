@@ -13,10 +13,6 @@ import jwt from 'jsonwebtoken'
 import StudentResponse from '../model/studentResponseModel'
 import Grading from '../model/gradingModel'
 
-interface AuthRequestLecturer extends Request {
-  lecturer?: { lecturerId: string } // Add the user property
-}
-
 const secret: string = (process.env.secret ?? '')
 
 export const lecturerSignup = async (
@@ -239,13 +235,13 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const updateLecturerPassword = async (req: AuthRequest, res: Response): Promise<void> => {
-  const studentId = req.student?.studentId
+  const lecturerId = req.lecturer?.lecturerId
 
   const { newPassword } = req.body
 
   try {
     // Find the user by ID
-    const user = await Lecturer.findByPk(studentId)
+    const user = await Lecturer.findByPk(lecturerId)
 
     if (!user) {
       res.status(404).json({ error: 'User not found' })
@@ -454,7 +450,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
 
   }
 }
-export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
+export const getLecturerDashboard = async (req: Request, res: Response): Promise<void> => {
   try {
     // const semester = req.query.semester || 'first semester'
 
@@ -473,7 +469,7 @@ export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Respon
   }
 }
 
-export const getGradedExams = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
+export const getGradedExams = async (req: Request, res: Response): Promise<void> => {
   try {
     const { lecturerId, semester } = req.query
     const checkExamQuestions = await Exam.findAll({ where: { lecturerId } })

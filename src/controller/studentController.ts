@@ -228,8 +228,6 @@ export const resetPasswordToken = async (req: Request, res: Response): Promise<v
 
 export const updateStudentPassword = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Find the user by ID
-
     const studentId = req.student?.studentId
 
     const { newPassword } = req.body

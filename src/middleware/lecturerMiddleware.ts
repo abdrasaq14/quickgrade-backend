@@ -10,12 +10,10 @@ const secret: string = (process.env.secret ?? '')
 
 export async function authenticateLecturer (req: AuthRequestLecturer, res: Response, next: NextFunction): Promise<void> {
   try {
-    const token = req.cookies.lecturerToken
-
-    console.log('lecturer-token', token)
-
+    const token = req.headers.authorization?.split(' ')[1]
+    console.log('token', token)
     if (!token) {
-      res.json({ lectuerUnauthorizedError: 'Unauthorized - Token not provided' })
+      res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {
       const decoded = jwt.verify(token, secret) as { loginkey: string }
 
@@ -27,8 +25,13 @@ export async function authenticateLecturer (req: AuthRequestLecturer, res: Respo
 
       next()
     }
-  } catch (error) {
-    console.error(error)
-    res.status(401).json({ error: 'Unauthorized - Invalid token' })
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      // Handle the case when the token is expired
+      res.json({ tokenExpiredError: 'Unauthorized - Token has expired' })
+    } else {
+      // Handle other token verification errors
+      res.json({ verificationError: 'Unauthorized - Token verification failed' })
+    }
   }
 }
