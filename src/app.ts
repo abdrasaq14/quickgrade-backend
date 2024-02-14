@@ -24,6 +24,7 @@ import examTimeTableRoute from './routes/examinationTimetable_Route'
 import protectedRouter from './routes/verifyTokenRoute'
 const secret: string = (process.env.secret ?? '')
 interface customCookie extends cookieParser.CookieParseOptions {
+  domain: string
   httpOnly: boolean
   secure: boolean
   sameSite: string
@@ -53,6 +54,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 app.use(cookieParser(secret, {
+  domain: '.quickgrade-frontend-app.onrender.com',
   httpOnly: true,
   secure: true,
   sameSite: 'none'

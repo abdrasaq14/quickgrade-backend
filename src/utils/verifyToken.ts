@@ -4,7 +4,6 @@ import Student from '../model/studentModel'
 import Lecturer from '../model/lecturerModel'
 
 const secret: string = (process.env.secret ?? '')
-console.log('secret', secret)
 export async function checkAndVerifyStudentToken (req: Request, res: Response): Promise<void> {
   try {
     const token = req.cookies.token
