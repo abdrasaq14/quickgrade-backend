@@ -43,7 +43,7 @@ const app = express()
 
 app.use(
   cors({
-    origin: 'https://quickgrade-frontend-2avd.onrender.com/',
+    origin: 'https://quickgrade-frontend-app.onrender.com/',
     credentials: true
   })
 )
