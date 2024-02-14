@@ -44,13 +44,11 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
           failedSignup: 'Student signup failed'
         })
       } else {
-        console.log('I am here')
         const student = await Student.findOne({ where: { email } })
 
         if (!student) {
           res.json({ studentNotFoundError: 'student record not found' })
         } else {
-          console.log('I am here now')
           const totpSecret = speakeasy.generateSecret({ length: 20 })
 
           // Update the student instance with TOTP details
@@ -139,7 +137,6 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
     const existingStudent = await Student.findOne({ where: { matricNo } })
 
     if (!existingStudent) {
-      console.log('student not found')
       res.json({
         studentNotFoundError: 'Student not found'
       })
@@ -147,14 +144,12 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
       const isPasswordValid = await bcrypt.compare(password, existingStudent.dataValues.password)
 
       if (!isPasswordValid) {
-        console.log('invalid password')
         res.json({
           inValidPassword: 'Invalid password'
         })
       } else {
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
-        console.log('tokenLogin', token)
-        res.cookie('token', token)
+        // res.cookie('token', token)
         res.json({ token })
         // res.json({
         //   successfulLogin: 'Login successful'
@@ -318,10 +313,7 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
     // const { studentId } = req.body
 
     const { studentId, semester } = req.query
-    console.log('query:', req.query)
-
     const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
-
     const result = findStudentResponse.reduce((acc: Record<string, number>, curr) => {
       const key = curr.dataValues.courseCode
       if (!acc[key]) {
@@ -368,7 +360,6 @@ export const getObjectivesScore = async (req: AuthRequest, res: Response): Promi
       res.json({ StudentResult, enrolledExam })
     })
   } catch (error) {
-    console.log('error', error)
   }
 }
 export const logout = async (req: AuthRequest, res: Response): Promise<void> => {

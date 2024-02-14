@@ -30,11 +30,8 @@ export const grades = async (req: Request, res: Response): Promise<void> => {
     const studentGrade = calculateGrade(grade)
 
     const gradeData = await Grading.create({ gradingId, studentId, responseId, department, grade: studentGrade })
-    console.log(gradeData)
-
     res.status(200).json(gradeData)
   } catch (error) {
-    console.error(error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }

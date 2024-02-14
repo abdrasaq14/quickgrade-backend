@@ -50,7 +50,6 @@ export const getExamTimetable = async (req: Request, res: Response): Promise<any
       res.status(200).json(examTimetable)
     }
   } catch (error) {
-    console.error('Error in getExamTimetable:', error)
     res.json({ error })
     // res.status(500).json({ error: errorMessage });
   }

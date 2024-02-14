@@ -57,10 +57,8 @@ export const sendStudentOTP = async (req: AuthRequest | Request, res: Response):
 
 export const verifyStudentOTP = async (req: AuthRequest | Request, res: Response): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const { otp } = req.body
     const email = (req as AuthRequest).session.email
-    console.log('email', email)
     const student = await Student.findOne({ where: { email, otp } })
 
     if (!student) {
@@ -77,7 +75,6 @@ export const verifyStudentOTP = async (req: AuthRequest | Request, res: Response
       res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
   } catch (error) {
-    console.error(error)
     res.json({ internalServerError: 'Internal Server Error' })
   }
 }
@@ -129,7 +126,6 @@ export const sendLecturerOTP = async (
 
     res.status(200).json({ message: 'TOTP sent successfully' })
   } catch (error) {
-    console.error(error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -139,11 +135,8 @@ export const verifyLecturerOTP = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const { otp } = req.body
     const email = (req as AuthRequest).session.email
-    console.log('email', email)
-
     const lecturer = await Lecturer.findOne({ where: { email, otp } })
 
     if (!lecturer) {
@@ -162,7 +155,6 @@ export const verifyLecturerOTP = async (
 
     res.status(200).json({ message: 'OTP verified successfully' })
   } catch (error) {
-    console.error(error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }

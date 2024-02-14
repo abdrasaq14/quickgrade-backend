@@ -44,7 +44,6 @@ export const getExamResults = async (req: Request, res: Response): Promise<any> 
       res.status(200).json(examResults)
     }
   } catch (error) {
-    console.error('Error in getExamResults:', error)
     const errorMessage = 'Internal Server Error'
     res.render('error', { errorMessage })
     // res.status(500).json({ error: 'Internal Server Error' })

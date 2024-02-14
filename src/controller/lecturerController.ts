@@ -47,7 +47,6 @@ export const lecturerSignup = async (
       })
       // sending employeeID  and password to Lecturer email
       if (!createdLecturer) {
-        console.log('Lecturer not created')
         res.json({
           failedSignup: 'Lecturer signup failed'
         })
@@ -88,14 +87,11 @@ export const lecturerSignup = async (
         The QuickGrade Team</h3>`
           }
           await transporter.sendMail(mailOptions)
-          console.log('successs')
           res.json({ successfulSignup: 'lecturer signup successful' })
         }
       }
     }
   } catch (error: any) {
-    console.error('Error creating lecturer:', error)
-
     res.status(500).json({
       message: ` error: ${error}`
     })
@@ -135,8 +131,6 @@ export const lecturerLogin = async (
       }
     }
   } catch (error: any) {
-    console.error('Error during lecturer login:', error)
-
     res.status(500).json({
       internalServerError: `Error: ${error}`
     })
@@ -237,12 +231,9 @@ export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
       }
 
       await transporter.sendMail(mailOptions)
-      console.log('successs')
-      // res.json({ successfulSignup: 'Student signup successful' })
       res.json({ OtpVerificationSuccess: 'OTP verified successfully' })
     }
   } catch (error) {
-    console.error(error)
     res.json({ internalServerError: 'Internal Server Error' })
   }
 }
@@ -269,7 +260,6 @@ export const updateLecturerPassword = async (req: AuthRequest, res: Response): P
 
     // Update the user's password
   } catch (error) {
-    console.error(error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -296,13 +286,11 @@ export const getCourses = async (req: Request, res: Response): Promise<void> => 
       })
     }
   } catch (error) {
-    console.log(error)
   }
 }
 
 export const setExamQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log('req.body', req.body)
     const {
       lecturerId, examDuration, instruction, courseTitle, courseCode, semester, session, faculty, department, examDate,
       totalScore, questions, sections
@@ -375,25 +363,20 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
           })
         }
       } catch (error) {
-        console.log('error', error)
       }
     }))
     if (!createdQuestions) {
       console.log('unable to create questions')
     } else {
-      console.log('question created successfully')
       res.json({ examQuestionCreated: 'exam created successfully' })
     }
   } catch (error) {
-    console.log(error)
   }
 }
 
 export const gradeExam = async (req: Request, res: Response): Promise<void> => {
   try {
     const { courseCode } = req.params
-    console.log('courseCode', courseCode)
-    console.log('req.body', req.body)
     const { studentId, examId, assembledQuestions } = req.body
     const semester = await Exam.findOne({ attributes: ['semester'], where: { examId } })
     const studentResponse = await Promise.all(assembledQuestions.map(async (response: Record<string, any>) => {
@@ -413,7 +396,6 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
         }
       } catch (error) {
         res.json({ error: 'Internal Server Error' })
-        console.log('error 1', error)
       }
     }))
 
@@ -424,7 +406,6 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
       const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
       // filter only the current course in case of existing courses
       const filterCurrentCourseOnly = findStudentResponse.filter((currentCourse) => currentCourse.dataValues.courseCode === courseCode)
-      console.log('filterCurrentCourseOnly', filterCurrentCourseOnly)
       // reducing it to the number of questions in each course
       const result = filterCurrentCourseOnly.reduce((acc: Record<string, number>, curr) => {
         const key = curr.dataValues.courseCode
@@ -439,7 +420,6 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       const eachQuetionAllocatedMarks = Object.keys(result).map(async (key) => {
         const course = await Exam.findOne({ where: { courseCode: key } })
-        console.log('course', course?.dataValues)
         if (course) {
           // getting the allocated mark for that section
           const AllocatedTotalMarks = Number(course.dataValues.firstSection.split('|')[1])
@@ -465,15 +445,13 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
       })
       const studentResponseAutograding = await Promise.all(eachQuetionAllocatedMarks)
       if (!studentResponseAutograding) {
-        console.log('unable to grade student', studentResponseAutograding)
         res.json({ unableToGradeStudent: 'Internal Server Error' })
       } else {
-        console.log('studentResponseAutograding successful')
         res.json({ objectivesAutoGradedSuccessfully: 'exam created successfully' })
       }
     }
   } catch (error) {
-    console.log(error)
+
   }
 }
 export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
@@ -492,15 +470,12 @@ export const getLecturerDashboard = async (req: AuthRequestLecturer, res: Respon
 
     res.json({ examsTotal })
   } catch (error) {
-    console.error(error)
-    console.log(error)
   }
 }
 
 export const getGradedExams = async (req: AuthRequestLecturer, res: Response): Promise<void> => {
   try {
     const { lecturerId, semester } = req.query
-    console.log('lecturerId', lecturerId)
     const checkExamQuestions = await Exam.findAll({ where: { lecturerId } })
     const firstSemester = checkExamQuestions.filter((filterBySemester) => filterBySemester.dataValues.semester === semester)
 
@@ -523,12 +498,10 @@ export const getGradedExams = async (req: AuthRequestLecturer, res: Response): P
         })
     })).then(response => {
       const StudentResult = response.flat()
-      console.log('StudentResult', StudentResult)
       res.json({ StudentResult })
     }).catch(error => {
       console.log(error)
     })
   } catch (error) {
-    console.log(error)
   }
 }

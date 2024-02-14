@@ -24,7 +24,6 @@ export const createCourse = async (req: Request, res: Response): Promise<void> =
       })
     }
   } catch (error) {
-    console.log(error)
   }
 }
 
@@ -41,6 +40,5 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
       })
     }
   } catch (error) {
-    console.log(error)
   }
 }
