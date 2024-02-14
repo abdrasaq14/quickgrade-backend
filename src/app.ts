@@ -44,7 +44,7 @@ const app = express()
 
 app.use(
   cors({
-    origin: 'https://quickgrade-frontend-app.onrender.com',
+    origin: 'https://quickgrade.onrender.com',
     credentials: true
   })
 )
@@ -54,7 +54,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 app.use(cookieParser(secret, {
-  domain: '.quickgrade-frontend-app.onrender.com',
+  domain: '.quickgrade.onrender.com',
   httpOnly: true,
   secure: true,
   sameSite: 'none'
