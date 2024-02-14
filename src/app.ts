@@ -3,7 +3,7 @@ import express, {
   type Response,
   type NextFunction
 } from 'express'
-
+import session from 'express-session'
 import { config } from 'dotenv'
 import createError from 'http-errors'
 import path from 'path'
@@ -43,8 +43,15 @@ sequelize
 const app = express()
 
 app.use(
+  session({
+    secret: process.env.secret ?? '',
+    resave: false,
+    saveUninitialized: true
+  })
+)
+app.use(
   cors({
-    origin: 'https://quickgrade.onrender.com',
+    origin: 'https://app-quickgrade.onrender.com',
     credentials: true
   })
 )
@@ -54,10 +61,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 app.use(cookieParser(secret, {
-  domain: '.quickgrade.onrender.com',
+  domain: '.onrender.com',
   httpOnly: true,
   secure: true,
-  sameSite: 'none'
+  sameSite: 'none', // to allow  cookie to be sent with cross-site requests
+  path: '/' // to make cookie available in all path in the domain
 } as customCookie)
 )
 app.use(express.static(path.join(__dirname, '../', 'public')))

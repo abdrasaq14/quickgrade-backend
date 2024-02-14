@@ -155,16 +155,16 @@ export const studentLogin = async (req: AuthRequest, res: Response, next: NextFu
         const token = jwt.sign({ loginkey: existingStudent.dataValues.studentId }, secret, { expiresIn: '1h' })
         console.log('tokenLogin', token)
         res.cookie('token', token)
-
-        res.json({
-          successfulLogin: 'Login successful'
-        })
+        res.json({ token })
+        // res.json({
+        //   successfulLogin: 'Login successful'
+        // })
         // Check if the token is set
-        if (res.headersSent && res.getHeader('Set-Cookie')) {
-          console.log('Token is set in the response cookies')
-        } else {
-          console.log('Token is not set in the response cookies')
-        }
+        // if (res.headersSent && res.getHeader('Set-Cookie')) {
+        //   console.log('Token is set in the response cookies')
+        // } else {
+        //   console.log('Token is not set in the response cookies')
+        // }
       }
     }
   } catch (error: any) {
