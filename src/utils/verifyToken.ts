@@ -36,7 +36,9 @@ export async function checkAndVerifyStudentToken (req: Request, res: Response): 
 }
 export async function checkAndVerifyLecturerToken (req: Request, res: Response): Promise<void> {
   try {
-    const token = req.cookies.lecturerToken
+    // const token = req.cookies.lecturerToken
+    const token = req.headers.authorization?.split(' ')[1]
+    console.log('verifytoken', token)
     if (!token) {
       res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {

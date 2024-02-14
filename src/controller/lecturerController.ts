@@ -126,12 +126,12 @@ export const lecturerLogin = async (
         })
       } else {
         const token = jwt.sign({ loginkey: existingLecturer.dataValues.lecturerId }, secret, { expiresIn: '1h' })
+        res.json({ token })
+        // res.cookie('lecturerToken', token)
 
-        res.cookie('lecturerToken', token)
-
-        res.json({
-          successfulLogin: 'login successful'
-        })
+        // res.json({
+        //   successfulLogin: 'login successful'
+        // })
       }
     }
   } catch (error: any) {
