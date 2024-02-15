@@ -443,6 +443,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
       if (!studentResponseAutograding) {
         res.json({ unableToGradeStudent: 'Internal Server Error' })
       } else {
+        console.log('student', studentResponseAutograding)
         res.json({ objectivesAutoGradedSuccessfully: 'exam created successfully' })
       }
     }
