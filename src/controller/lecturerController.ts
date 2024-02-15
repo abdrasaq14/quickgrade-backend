@@ -426,7 +426,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
           filterCurrentCourseOnly.map((studentResponse) => {
             studentResponse.dataValues.isCorrect === true ? count++ : count += 0
           })
-          const objectiveGrade = eachQuestionMark * count
+          const objectiveGrade = parseFloat((eachQuestionMark * count).toFixed(2))
           const theoryGrade = 0
           await Grading.create({
             studentId,
