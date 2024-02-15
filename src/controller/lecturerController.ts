@@ -428,7 +428,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
           })
           const objectiveGrade = parseFloat((eachQuestionMark * count).toFixed(2))
           const theoryGrade = 0
-          await Grading.create({
+          return await Grading.create({
             studentId,
             examId,
             courseCode: key,
