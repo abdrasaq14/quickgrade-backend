@@ -47,7 +47,7 @@ const app = express()
 
 app.use(
   session({
-    secret: process.env.secret ?? '',
+    secret,
     resave: false,
     saveUninitialized: true
   })
