@@ -22,15 +22,18 @@ import gradeRouter from './routes/grade'
 import examResultRouter from './routes/examResultRoute'
 import examTimeTableRoute from './routes/examinationTimetable_Route'
 import protectedRouter from './routes/verifyTokenRoute'
+import departmentRouter from './routes/departmentRoute'
+
+config()
+
 const secret: string = (process.env.secret ?? '')
+const FRONTEND_URL = process.env.FRONTEND_URL
 interface customCookie extends cookieParser.CookieParseOptions {
   domain: string
   httpOnly: boolean
   secure: boolean
   sameSite: string
 }
-
-config()
 
 sequelize
   .sync()
@@ -51,7 +54,7 @@ app.use(
 )
 app.use(
   cors({
-    origin: 'https://app-quickgrade.onrender.com',
+    origin: FRONTEND_URL,
     credentials: true
   })
 )
@@ -80,6 +83,7 @@ app.use('/reset_pass', resetPasswordRouter)
 app.use('/results', gradeRouter)
 app.use('/exam-results', examResultRouter)
 app.use('/exam-timetable', examTimeTableRoute)
+app.use('/departments', departmentRouter)
 app.use('/', indexRouter)
 // app.use('/reset-password', passResetRouter)
 

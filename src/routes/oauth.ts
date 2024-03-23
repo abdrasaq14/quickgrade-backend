@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import { OAuth2Client } from 'google-auth-library'
 dotenv.config()
 
+const BACKEND_URL = process.env.BACKEND_URL
 const router = express.Router()
 
 async function getUserData (accessToken: any): Promise<any> {
@@ -21,7 +22,7 @@ async function getUserData (accessToken: any): Promise<any> {
 router.get('/', function (req, res, next): void {
   const code: any = req.query.code
   try {
-    const redirectUrl = 'http://127.0.0.1:3000/oauth'
+    const redirectUrl = `${BACKEND_URL}/oauth`
 
     const oAuth2Client = new OAuth2Client(
       process.env.CLIENT_ID,

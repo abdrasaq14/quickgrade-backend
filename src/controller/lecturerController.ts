@@ -20,12 +20,13 @@ export const lecturerSignup = async (
   res: Response
 ): Promise<void> => {
   try {
+    console.log('req', req.body)
     const { firstName, lastName, faculty, department, password, email, title } = req.body
     const existingLecturer = await Lecturer.findOne({ where: { email } })
 
     if (existingLecturer) {
       res.json({
-        existingLecturerError: 'Lecturer already exists'
+        existingLecturerError: 'user with email already exist'
       })
     } else {
       const hashedPassword = await bcrypt.hash(password, 12)
@@ -44,7 +45,7 @@ export const lecturerSignup = async (
       // sending employeeID  and password to Lecturer email
       if (!createdLecturer) {
         res.json({
-          failedSignup: 'Lecturer signup failed'
+          failedSignup: 'Unable to create account, try again later'
         })
       } else {
         const lecturerDetail = await Lecturer.findOne({ where: { email } })
@@ -83,13 +84,14 @@ export const lecturerSignup = async (
         The QuickGrade Team</h3>`
           }
           await transporter.sendMail(mailOptions)
-          res.json({ successfulSignup: 'lecturer signup successful' })
+          res.json({ successfulSignup: 'account created successfully' })
         }
       }
     }
   } catch (error: any) {
-    res.status(500).json({
-      message: ` error: ${error}`
+    console.log('error', error)
+    res.json({
+      InternaServerError: 'InternaServerError'
     })
   }
 }

@@ -3,7 +3,6 @@ import { config } from 'dotenv'
 
 config()
 const BACKEND_URL = process.env.BACKEND_URL
-console.log('BACKEND_URL:', BACKEND_URL)
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './database.sqlite',

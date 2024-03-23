@@ -46,8 +46,7 @@ export const getExamTimetable = async (req: Request, res: Response): Promise<any
         ]
 
       })
-      res.render('Timetable', { examTimetable })
-      res.status(200).json(examTimetable)
+      res.json(examTimetable)
     }
   } catch (error) {
     res.json({ error })

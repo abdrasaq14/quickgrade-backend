@@ -21,7 +21,7 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
 
     if (existingStudent) {
       res.json({
-        existingStudentError: 'Student already exists'
+        existingStudentError: 'user with email already exist'
       })
     } else {
       const noOfStudent = (await Student.count() + 1).toString().padStart(4, '0')
@@ -41,7 +41,7 @@ export const studentSignup = async (req: AuthRequest, res: Response): Promise<vo
 
       if (!createdStudent) {
         res.json({
-          failedSignup: 'Student signup failed'
+          failedSignup: 'Unable to create account, try again later'
         })
       } else {
         const student = await Student.findOne({ where: { email } })
