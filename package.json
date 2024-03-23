@@ -7,6 +7,7 @@
     "dev": "nodemon .bin/www",
     "prepare": "husky install",
     "tsc": "tsc -watch",
+    "compile": "tsc",
     "lint": "pretty-quick --staged && lint-staged"
   },
   "dependencies": {
