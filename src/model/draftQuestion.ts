@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../database/databaseSqlite'
 import { v4 as uuidv4 } from 'uuid'
-import SetExamDraftModel from './setExamDraftModel'
+import SetExamDraftModel from './draftExamModel'
 import Lecturer from './lecturerModel'
 
 class DraftQuestion extends Model {
@@ -54,25 +54,27 @@ DraftQuestion.init(
       type: DataTypes.STRING,
       allowNull: false
     },
-    examId: {
+    draftExamId: {
       type: DataTypes.UUID,
       references: {
         model: SetExamDraftModel,
         key: 'draftExamId'
-      }
+      },
+      allowNull: false
     },
     lecturerId: {
       type: DataTypes.UUID,
       references: {
         model: Lecturer,
         key: 'lecturerId'
-      }
+      },
+      allowNull: false
     }
 
   },
   {
     sequelize,
-    modelName: 'Question'
+    modelName: 'DraftQuestion'
   }
 )
 

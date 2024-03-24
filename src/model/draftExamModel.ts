@@ -4,10 +4,9 @@ import sequelize from '../database/databaseSqlite'
 import Lecturer from './lecturerModel'
 import Courses from './courseModel'
 
-class SetExamDraftModel extends Model {
+class DraftExam extends Model {
   public draftExamId!: string
   public lecturerId!: string
-  public courseId!: string
   public examDuration!: string
   public examInstruction!: string
   public firstSection!: string
@@ -30,16 +29,16 @@ class SetExamDraftModel extends Model {
   public correctAnswer!: string
   public questionType!: string
   static associate (models: any): void {
-    SetExamDraftModel.belongsTo(models.Lecturer, {
+    DraftExam.belongsTo(models.Lecturer, {
       foreignKey: 'lecturerId', as: 'DraftExam'
     })
-    SetExamDraftModel.belongsTo(models.Course, {
-      foreignKey: 'courseId', as: 'DraftExam'
+    DraftExam.belongsTo(models.Course, {
+      foreignKey: 'courseTitle', as: 'DraftExam'
     })
   }
 }
 
-SetExamDraftModel.init(
+DraftExam.init(
   {
     draftExamId: {
       type: DataTypes.UUID,
@@ -52,14 +51,8 @@ SetExamDraftModel.init(
       references: {
         model: Lecturer,
         key: 'lecturerId'
-      }
-    },
-    courseId: {
-      type: DataTypes.UUID,
-      references: {
-        model: Courses,
-        key: 'courseId'
-      }
+      },
+      allowNull: false
     },
     examDuration: {
       type: DataTypes.STRING,
@@ -83,6 +76,10 @@ SetExamDraftModel.init(
     },
     courseTitle: {
       type: DataTypes.STRING,
+      references: {
+        model: Courses,
+        key: 'courseTitle'
+      },
       allowNull: false
     },
     courseCode: {
@@ -111,17 +108,18 @@ SetExamDraftModel.init(
     },
     totalScore: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: false
     },
     totalNoOfQuestions: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   },
   {
     sequelize,
-    modelName: 'SetExamDraftModel'
+    modelName: 'DraftExam'
   }
 
 )
 
-export default SetExamDraftModel
+export default DraftExam

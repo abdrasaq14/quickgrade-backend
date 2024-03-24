@@ -12,7 +12,7 @@ import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
 import StudentResponse from '../model/studentResponseModel'
 import Grading from '../model/gradingModel'
-import SetExamDraftModel from '../model/setExamDraftModel'
+import SetExamDraftModel from '../model/draftExamModel'
 import DraftQuestion from '../model/draftQuestion'
 
 const secret: string = (process.env.secret ?? '')
@@ -22,7 +22,6 @@ export const lecturerSignup = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log('req', req.body)
     const { firstName, lastName, faculty, department, password, email, title } = req.body
     const existingLecturer = await Lecturer.findOne({ where: { email } })
 
@@ -91,7 +90,7 @@ export const lecturerSignup = async (
       }
     }
   } catch (error: any) {
-    console.log('error', error)
+    // console.log('error', error)
     res.json({
       InternaServerError: 'InternaServerError'
     })
@@ -449,12 +448,11 @@ export const saveDraftExams = async (req: Request, res: Response): Promise<void>
       } catch (error) {
       }
     }))
-    if (!createdQuestions) {
-      console.log('unable to create questions')
-    } else {
+    if (!createdQuestions) { /* empty */ } else {
       res.json({ draftExamQuestionCreated: 'exam created successfully' })
     }
   } catch (error) {
+    console.log('draft exam', error)
   }
 }
 
@@ -531,7 +529,6 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
       if (!studentResponseAutograding) {
         res.json({ unableToGradeStudent: 'Internal Server Error' })
       } else {
-        console.log('student', studentResponseAutograding)
         res.json({ objectivesAutoGradedSuccessfully: 'exam created successfully' })
       }
     }
