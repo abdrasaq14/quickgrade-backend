@@ -12,6 +12,8 @@ import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
 import StudentResponse from '../model/studentResponseModel'
 import Grading from '../model/gradingModel'
+import SetExamDraftModel from '../model/setExamDraftModel'
+import DraftQuestion from '../model/draftQuestion'
 
 const secret: string = (process.env.secret ?? '')
 
@@ -367,6 +369,90 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
       console.log('unable to create questions')
     } else {
       res.json({ examQuestionCreated: 'exam created successfully' })
+    }
+  } catch (error) {
+  }
+}
+export const saveDraftExams = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      lecturerId, examDuration, instruction, courseTitle, courseCode, semester, session, faculty, department, examDate,
+      totalScore, questions, sections
+    } = req.body
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const eachSectionDetail = sections.map((section: Record<string, string>) => {
+      return `${section.sectionAlphabet}|${section.ScoreObtainable}|${section.questionType}`
+    })
+
+    const createdExam = await SetExamDraftModel.create({
+      examDuration,
+      courseTitle,
+      courseCode,
+      examInstruction: instruction,
+      semester,
+      session,
+      firstSection: eachSectionDetail[0] || '',
+      secondSection: eachSectionDetail[1] || '',
+      thirdSection: eachSectionDetail[2] || '',
+      faculty,
+      lecturerId,
+      department,
+      examDate,
+      totalScore,
+      totalNoOfQuestions: questions.length
+    })
+
+    const draftExamId = createdExam.dataValues.draftExamId
+    // Use Promise.all to wait for all promises to resolve
+    const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
+      try {
+        if (question.type === 'theory') {
+          return await DraftQuestion.create({
+            questionText: question.questionText,
+            questionType: 'Theory',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            draftExamId
+          })
+        } else if (question.type === 'fill-in-the-blank') {
+          return await DraftQuestion.create({
+            questionText: question.questionText,
+            questionType: 'fill-in-the-blank',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            draftExamId
+          })
+        } else if (question.type === 'objectives') {
+          return await DraftQuestion.create({
+            questionText: question.questionText,
+            questionType: 'Objective',
+            optionA: question.optionA,
+            optionB: question.optionB,
+            optionC: question.optionC,
+            optionD: question.optionD,
+            lecturerId: createdExam.dataValues.lecturerId,
+            correctAnswer: question.correctAnswer,
+            courseCode,
+            draftExamId
+          })
+        }
+      } catch (error) {
+      }
+    }))
+    if (!createdQuestions) {
+      console.log('unable to create questions')
+    } else {
+      res.json({ draftExamQuestionCreated: 'exam created successfully' })
     }
   } catch (error) {
   }
