@@ -1,13 +1,13 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../database/databaseSqlite'
 import { v4 as uuidv4 } from 'uuid'
-import SetExamDraftModel from './draftExamModel'
+import DraftExam from './draftExamModel'
 import Lecturer from './lecturerModel'
 
 class DraftQuestion extends Model {
   static associate (models: any): void {
     // Define the many-to-many relationship with the Course model
-    DraftQuestion.belongsTo(models.SetExamDraftModel, {
+    DraftQuestion.belongsTo(models.DraftExam, {
       foreignKey: 'draftExamId',
       as: 'draftExam'
     })
@@ -23,8 +23,7 @@ DraftQuestion.init(
     },
     questionText: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     optionA: {
       type: DataTypes.STRING,
@@ -54,10 +53,14 @@ DraftQuestion.init(
       type: DataTypes.STRING,
       allowNull: false
     },
+    id: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     draftExamId: {
       type: DataTypes.UUID,
       references: {
-        model: SetExamDraftModel,
+        model: DraftExam,
         key: 'draftExamId'
       },
       allowNull: false

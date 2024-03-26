@@ -35,7 +35,6 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
         message: 'unable to fetch courses'
       })
     } else {
-      console.log('courses', courses)
       res.json({
         courseDetailFromServer: courses
       })

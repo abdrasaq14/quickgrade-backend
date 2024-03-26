@@ -2,7 +2,6 @@ import { Model, DataTypes } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
 import sequelize from '../database/databaseSqlite'
 import Lecturer from './lecturerModel'
-import Courses from './courseModel'
 
 class DraftExam extends Model {
   public draftExamId!: string
@@ -76,10 +75,6 @@ DraftExam.init(
     },
     courseTitle: {
       type: DataTypes.STRING,
-      references: {
-        model: Courses,
-        key: 'courseTitle'
-      },
       allowNull: false
     },
     courseCode: {

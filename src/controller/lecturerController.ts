@@ -1,3 +1,4 @@
+/* eslint-disable no-lone-blocks */
 import Lecturer from '../model/lecturerModel'
 import Student from '../model/studentModel'
 import { type Request, type Response } from 'express'
@@ -12,9 +13,8 @@ import Courses from '../model/courseModel'
 import jwt from 'jsonwebtoken'
 import StudentResponse from '../model/studentResponseModel'
 import Grading from '../model/gradingModel'
-import SetExamDraftModel from '../model/draftExamModel'
+import DraftExams from '../model/draftExamModel'
 import DraftQuestion from '../model/draftQuestion'
-
 const secret: string = (process.env.secret ?? '')
 
 export const lecturerSignup = async (
@@ -364,9 +364,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
       } catch (error) {
       }
     }))
-    if (!createdQuestions) {
-      console.log('unable to create questions')
-    } else {
+    if (!createdQuestions) { /* empty */ } else {
       res.json({ examQuestionCreated: 'exam created successfully' })
     }
   } catch (error) {
@@ -378,81 +376,221 @@ export const saveDraftExams = async (req: Request, res: Response): Promise<void>
       lecturerId, examDuration, instruction, courseTitle, courseCode, semester, session, faculty, department, examDate,
       totalScore, questions, sections
     } = req.body
+    // check for questions in database but have been deleted
+
+    const checkIfDraftExist = await DraftExams.findOne({ where: { lecturerId, courseCode } })
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const eachSectionDetail = sections.map((section: Record<string, string>) => {
       return `${section.sectionAlphabet}|${section.ScoreObtainable}|${section.questionType}`
     })
+    if (checkIfDraftExist) {
+      await DraftExams.update({
+        examDuration,
+        courseTitle,
+        courseCode,
+        examInstruction: instruction,
+        semester,
+        session,
+        firstSection: eachSectionDetail[0] || '',
+        secondSection: eachSectionDetail[1] || '',
+        thirdSection: eachSectionDetail[2] || '',
+        faculty,
+        lecturerId,
+        department,
+        examDate,
+        totalScore,
+        totalNoOfQuestions: questions.length
+      }, { where: { draftExamId: checkIfDraftExist.dataValues.draftExamId } })
 
-    const createdExam = await SetExamDraftModel.create({
-      examDuration,
-      courseTitle,
-      courseCode,
-      examInstruction: instruction,
-      semester,
-      session,
-      firstSection: eachSectionDetail[0] || '',
-      secondSection: eachSectionDetail[1] || '',
-      thirdSection: eachSectionDetail[2] || '',
-      faculty,
-      lecturerId,
-      department,
-      examDate,
-      totalScore,
-      totalNoOfQuestions: questions.length
-    })
-
-    const draftExamId = createdExam.dataValues.draftExamId
-    // Use Promise.all to wait for all promises to resolve
-    const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
-      try {
-        if (question.type === 'theory') {
-          return await DraftQuestion.create({
-            questionText: question.questionText,
-            questionType: 'Theory',
-            optionA: question.optionA,
-            optionB: question.optionB,
-            optionC: question.optionC,
-            optionD: question.optionD,
-            lecturerId: createdExam.dataValues.lecturerId,
-            correctAnswer: question.correctAnswer,
-            courseCode,
-            draftExamId
-          })
-        } else if (question.type === 'fill-in-the-blank') {
-          return await DraftQuestion.create({
-            questionText: question.questionText,
-            questionType: 'fill-in-the-blank',
-            optionA: question.optionA,
-            optionB: question.optionB,
-            optionC: question.optionC,
-            optionD: question.optionD,
-            lecturerId: createdExam.dataValues.lecturerId,
-            correctAnswer: question.correctAnswer,
-            courseCode,
-            draftExamId
-          })
-        } else if (question.type === 'objectives') {
-          return await DraftQuestion.create({
-            questionText: question.questionText,
-            questionType: 'Objective',
-            optionA: question.optionA,
-            optionB: question.optionB,
-            optionC: question.optionC,
-            optionD: question.optionD,
-            lecturerId: createdExam.dataValues.lecturerId,
-            correctAnswer: question.correctAnswer,
-            courseCode,
-            draftExamId
-          })
+      // Fetch all questions associated with the current draft exam
+      const allQuestionsInDb = await DraftQuestion.findAll({ where: { draftExamId: checkIfDraftExist.dataValues.draftExamId, courseCode: checkIfDraftExist.dataValues.courseCode } })
+      // Extract question texts from the questions array in the request body
+      const questionTextsInRequest = questions.map((question: Record<string, any>) => question.id)
+      // Find questions in the database that are not in the request body
+      const questionsToDelete = allQuestionsInDb.filter((dbQuestion: Record<string, any>) => {
+        return !questionTextsInRequest.includes(dbQuestion.id)
+      })
+      // Delete these questions from the database
+      await Promise.all(questionsToDelete.map(async (questionToDelete) => {
+      }))
+      // Use Promise.all to wait for all promises to resolve
+      const updateDraftQuestion = await Promise.all(questions.map(async (question: Record<string, any>) => {
+        try {
+          const existingQuestion = await DraftQuestion.findOne({ where: { id: question.id } })
+          if (existingQuestion?.dataValues.id === question.id) {
+            if (question.type === 'theory') {
+              return await DraftQuestion.update({
+                questionText: question.questionText,
+                questionType: 'Theory',
+                optionA: question.optionA,
+                optionB: question.optionB,
+                optionC: question.optionC,
+                optionD: question.optionD,
+                lecturerId: checkIfDraftExist.dataValues.lecturerId,
+                correctAnswer: question.correctAnswer,
+                courseCode,
+                draftExamId: checkIfDraftExist.dataValues.draftExamId
+              }, { where: { id: question.id } })
+            } else if (question.type === 'fill-in-the-blank') {
+              return await DraftQuestion.update({
+                questionText: question.questionText,
+                questionType: 'fill-in-the-blank',
+                optionA: question.optionA,
+                optionB: question.optionB,
+                optionC: question.optionC,
+                optionD: question.optionD,
+                lecturerId: checkIfDraftExist.dataValues.lecturerId,
+                correctAnswer: question.correctAnswer,
+                courseCode,
+                draftExamId: checkIfDraftExist.dataValues.draftExamId
+              }, { where: { id: question.id } })
+            } else if (question.type === 'objectives') {
+              return await DraftQuestion.update({
+                questionText: question.questionText,
+                questionType: 'Objective',
+                optionA: question.optionA,
+                optionB: question.optionB,
+                optionC: question.optionC,
+                optionD: question.optionD,
+                lecturerId: checkIfDraftExist.dataValues.lecturerId,
+                correctAnswer: question.correctAnswer,
+                courseCode,
+                draftExamId: checkIfDraftExist.dataValues.draftExamId
+              }, { where: { id: question.id } })
+            }
+          } else {
+            if (question.type === 'theory') {
+              return await DraftQuestion.create({
+                questionText: question.questionText,
+                questionType: 'Theory',
+                optionA: question.optionA,
+                optionB: question.optionB,
+                optionC: question.optionC,
+                optionD: question.optionD,
+                lecturerId: checkIfDraftExist.dataValues.lecturerId,
+                correctAnswer: question.correctAnswer,
+                courseCode,
+                id: question.id,
+                draftExamId: checkIfDraftExist.dataValues.draftExamId
+              })
+            } else if (question.type === 'fill-in-the-blank') {
+              return await DraftQuestion.create({
+                questionText: question.questionText,
+                questionType: 'fill-in-the-blank',
+                optionA: question.optionA,
+                optionB: question.optionB,
+                optionC: question.optionC,
+                optionD: question.optionD,
+                lecturerId: checkIfDraftExist.dataValues.lecturerId,
+                correctAnswer: question.correctAnswer,
+                courseCode,
+                id: question.id,
+                draftExamId: checkIfDraftExist.dataValues.draftExamId
+              })
+            } else if (question.type === 'objectives') {
+              return await DraftQuestion.create({
+                questionText: question.questionText,
+                questionType: 'Objective',
+                optionA: question.optionA,
+                optionB: question.optionB,
+                optionC: question.optionC,
+                optionD: question.optionD,
+                lecturerId: checkIfDraftExist.dataValues.lecturerId,
+                correctAnswer: question.correctAnswer,
+                courseCode,
+                id: question.id,
+                draftExamId: checkIfDraftExist.dataValues.draftExamId
+              })
+            }
+          }
+        } catch (error) {
+          return error
         }
-      } catch (error) {
+      }))
+      // Check if any of the updates resulted in an error
+      const hasError = updateDraftQuestion.some(result => result instanceof Error)
+
+      if (hasError) {
+        res.json({ unableToSaveDraft: 'Unable to save draft' })
+      } else {
+        // remove the
+        res.json({ draftExamQuestionCreated: 'Exam saved as draft successfully' })
       }
-    }))
-    if (!createdQuestions) { /* empty */ } else {
-      res.json({ draftExamQuestionCreated: 'exam created successfully' })
+    } else {
+      const createdExam = await DraftExams.create({
+        examDuration,
+        courseTitle,
+        courseCode,
+        examInstruction: instruction,
+        semester,
+        session,
+        firstSection: eachSectionDetail[0] || '',
+        secondSection: eachSectionDetail[1] || '',
+        thirdSection: eachSectionDetail[2] || '',
+        faculty,
+        lecturerId,
+        department,
+        examDate,
+        totalScore,
+        totalNoOfQuestions: questions.length
+      })
+
+      const draftExamId = createdExam.dataValues.draftExamId
+      // Use Promise.all to wait for all promises to resolve
+      const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
+        try {
+          if (question.type === 'theory') {
+            return await DraftQuestion.create({
+              questionText: question.questionText,
+              questionType: 'Theory',
+              optionA: question.optionA,
+              optionB: question.optionB,
+              optionC: question.optionC,
+              optionD: question.optionD,
+              lecturerId: createdExam.dataValues.lecturerId,
+              correctAnswer: question.correctAnswer,
+              courseCode,
+              draftExamId,
+              id: question.id
+            })
+          } else if (question.type === 'fill-in-the-blank') {
+            return await DraftQuestion.create({
+              questionText: question.questionText,
+              questionType: 'fill-in-the-blank',
+              optionA: question.optionA,
+              optionB: question.optionB,
+              optionC: question.optionC,
+              optionD: question.optionD,
+              lecturerId: createdExam.dataValues.lecturerId,
+              correctAnswer: question.correctAnswer,
+              courseCode,
+              id: question.id,
+              draftExamId
+            })
+          } else if (question.type === 'objectives') {
+            return await DraftQuestion.create({
+              questionText: question.questionText,
+              questionType: 'Objective',
+              optionA: question.optionA,
+              optionB: question.optionB,
+              optionC: question.optionC,
+              optionD: question.optionD,
+              lecturerId: createdExam.dataValues.lecturerId,
+              correctAnswer: question.correctAnswer,
+              courseCode,
+              id: question.id,
+              draftExamId
+            })
+          }
+        } catch (error) {
+        }
+      }))
+      if (!createdQuestions) { /* empty */ } else {
+        res.json({ draftExamQuestionCreated: 'Exam saved as draft successfully' })
+      }
     }
   } catch (error) {
-    console.log('draft exam', error)
+    res.json({ internalServerError: 'Internal Server Error' })
   }
 }
 
@@ -481,9 +619,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
       }
     }))
 
-    if (!studentResponse) {
-      console.log('unable to grade student response')
-    } else {
+    if (!studentResponse) { /* empty */ } else {
       // to get the number of objective questions answered by each student
       const findStudentResponse = await StudentResponse.findAll({ attributes: ['studentId', 'courseCode', 'examId', 'isCorrect'], where: { studentId } })
       // filter only the current course in case of existing courses
@@ -536,7 +672,7 @@ export const gradeExam = async (req: Request, res: Response): Promise<void> => {
 
   }
 }
-export const getLecturerDashboard = async (req: Request, res: Response): Promise<void> => {
+export const getLecturerDashboard = async (_req: Request, res: Response): Promise<void> => {
   try {
     // const semester = req.query.semester || 'first semester'
 
@@ -581,9 +717,22 @@ export const getGradedExams = async (req: Request, res: Response): Promise<void>
     })).then(response => {
       const StudentResult = response.flat()
       res.json({ StudentResult })
-    }).catch(error => {
-      console.log(error)
+    }).catch(_error => {
+
     })
   } catch (error) {
+  }
+}
+
+export const fetchDraftExam = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { lecturerId, courseCode } = req.query
+    const draftExamDetail = await DraftExams.findOne({ where: { lecturerId, courseCode } })
+    const draftExamId = draftExamDetail?.dataValues.draftExamId
+    const draftQuestions = await DraftQuestion.findAll({ where: { draftExamId } })
+    res.json({ draftExamDetail, draftQuestions })
+  } catch (error) {
+    console.log('error', error)
+    res.json({ internalServeError: 'Internal server error' })
   }
 }

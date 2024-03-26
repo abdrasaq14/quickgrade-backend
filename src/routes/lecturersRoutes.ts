@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
-import { lecturerSignup, updateLecturerPassword, lecturerLogin, verifyOTP, resetPassword, saveDraftExams, resetPasswordToken, setExamQuestions, getLecturerDashboard, getGradedExams, gradeExam } from '../controller/lecturerController'
+import { lecturerSignup, updateLecturerPassword, fetchDraftExam, lecturerLogin, verifyOTP, resetPassword, saveDraftExams, resetPasswordToken, setExamQuestions, getLecturerDashboard, getGradedExams, gradeExam } from '../controller/lecturerController'
 import { authenticateLecturer } from '../middleware/lecturerMiddleware'
 const router = express.Router()
 
@@ -20,5 +20,6 @@ router.get('/get-graded-exam-objectives/', getGradedExams)
 router.put('/dashboard/change-password', authenticateLecturer, updateLecturerPassword)
 
 router.post('/save-draft-exams', saveDraftExams)
+router.get('/fetch-draft-exams', fetchDraftExam)
 
 export default router

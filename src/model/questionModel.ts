@@ -22,8 +22,7 @@ Question.init(
     },
     questionText: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     optionA: {
       type: DataTypes.STRING,
