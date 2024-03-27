@@ -31,9 +31,9 @@ class DraftExam extends Model {
     DraftExam.belongsTo(models.Lecturer, {
       foreignKey: 'lecturerId', as: 'DraftExam'
     })
-    DraftExam.belongsTo(models.Course, {
-      foreignKey: 'courseTitle', as: 'DraftExam'
-    })
+    // DraftExam.belongsTo(models.Course, {
+    //   foreignKey: 'courseTitle', as: 'DraftExam'
+    // })
   }
 }
 

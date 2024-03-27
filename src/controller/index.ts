@@ -42,3 +42,21 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
   } catch (error) {
   }
 }
+
+export const getAllFacultyAndDepartments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const facultyAndDepartments = await Courses.findAll({
+      attributes: ['faculty', 'department']
+    })
+    if (!facultyAndDepartments) {
+      res.json({
+        unableToFetchFaculty: 'unable to fetch faculty and departments'
+      })
+    } else {
+      res.json({
+        facultyAndDepartments
+      })
+    }
+  } catch (error) {
+  }
+}

@@ -590,6 +590,7 @@ export const saveDraftExams = async (req: Request, res: Response): Promise<void>
       }
     }
   } catch (error) {
+    console.log('error', error)
     res.json({ internalServerError: 'Internal Server Error' })
   }
 }
@@ -732,7 +733,6 @@ export const fetchDraftExam = async (req: Request, res: Response): Promise<void>
     const draftQuestions = await DraftQuestion.findAll({ where: { draftExamId } })
     res.json({ draftExamDetail, draftQuestions })
   } catch (error) {
-    console.log('error', error)
     res.json({ internalServeError: 'Internal server error' })
   }
 }
