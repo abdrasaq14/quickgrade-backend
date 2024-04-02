@@ -2,6 +2,7 @@ import { type Request, type Response } from 'express'
 import jwt from 'jsonwebtoken'
 import Student from '../model/studentModel'
 import Lecturer from '../model/lecturerModel'
+import DraftExam from '../model/draftExamModel'
 
 const secret: string = (process.env.secret ?? '')
 export async function checkAndVerifyStudentToken (req: Request, res: Response): Promise<void> {
@@ -39,7 +40,11 @@ export async function checkAndVerifyLecturerToken (req: Request, res: Response):
       const lecturerData = await Lecturer.findOne({
         where: { lecturerId: decoded.loginkey }
       })
-      const lecturer = { title: lecturerData?.dataValues.title, lecturerId: lecturerData?.dataValues.lecturerId, firstName: lecturerData?.dataValues.firstName, lastName: lecturerData?.dataValues.lastName, faculty: lecturerData?.dataValues.faculty, department: lecturerData?.dataValues.department, email: lecturerData?.dataValues.email, employeeID: lecturerData?.dataValues.employeeID }
+      const checkDraftCourseByLecturer = await DraftExam.findOne({
+        attributes: ['courseCode'],
+        where: { lecturerId: decoded.loginkey }
+      })
+      const lecturer = { title: lecturerData?.dataValues.title, lecturerId: lecturerData?.dataValues.lecturerId, firstName: lecturerData?.dataValues.firstName, lastName: lecturerData?.dataValues.lastName, faculty: lecturerData?.dataValues.faculty, department: lecturerData?.dataValues.department, email: lecturerData?.dataValues.email, employeeID: lecturerData?.dataValues.employeeID, draftCourses: [checkDraftCourseByLecturer?.dataValues.courseCode] }
       res.json({ lecturer })
 
       // req.student = { lecturerId: student?.dataValues.lecturerId }
