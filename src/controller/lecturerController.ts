@@ -316,7 +316,13 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
       totalScore,
       totalNoOfQuestions: questions.length
     })
-
+    const checkIfDraftExist = await DraftExams.findOne({ where: { lecturerId, courseCode } })
+    if (checkIfDraftExist) {
+      // First, delete from DraftQuestion table
+      await DraftQuestion.destroy({ where: { lecturerId, courseCode } })
+      // Then, delete from DraftExams table
+      await DraftExams.destroy({ where: { lecturerId, courseCode } })
+    }
     const examId = createdExam.dataValues.examId
     // Use Promise.all to wait for all promises to resolve
     const createdQuestions = await Promise.all(questions.map(async (question: Record<string, any>) => {
@@ -368,6 +374,7 @@ export const setExamQuestions = async (req: Request, res: Response): Promise<voi
       res.json({ examQuestionCreated: 'exam created successfully' })
     }
   } catch (error) {
+    res.json({ internalServerError: 'Internal Server Error' })
   }
 }
 export const saveDraftExams = async (req: Request, res: Response): Promise<void> => {
@@ -590,6 +597,7 @@ export const saveDraftExams = async (req: Request, res: Response): Promise<void>
       }
     }
   } catch (error) {
+    console.log('error', error)
     res.json({ internalServerError: 'Internal Server Error' })
   }
 }
@@ -732,7 +740,6 @@ export const fetchDraftExam = async (req: Request, res: Response): Promise<void>
     const draftQuestions = await DraftQuestion.findAll({ where: { draftExamId } })
     res.json({ draftExamDetail, draftQuestions })
   } catch (error) {
-    console.log('error', error)
     res.json({ internalServeError: 'Internal server error' })
   }
 }

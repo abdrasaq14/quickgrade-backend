@@ -2,6 +2,7 @@ import { type Request, type Response } from 'express'
 import jwt from 'jsonwebtoken'
 import Student from '../model/studentModel'
 import Lecturer from '../model/lecturerModel'
+import DraftExam from '../model/draftExamModel'
 
 const secret: string = (process.env.secret ?? '')
 export async function checkAndVerifyStudentToken (req: Request, res: Response): Promise<void> {
@@ -12,9 +13,10 @@ export async function checkAndVerifyStudentToken (req: Request, res: Response): 
       res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {
       const decoded = jwt.verify(token, secret) as { loginkey: string }
-      const student = await Student.findOne({
+      const studentData = await Student.findOne({
         where: { studentId: decoded.loginkey }
       })
+      const student = { studentId: studentData?.dataValues.studentId, faculty: studentData?.dataValues.faculty, department: studentData?.dataValues.department, email: studentData?.dataValues.email, matricNo: studentData?.dataValues.matricNo, firstName: studentData?.dataValues.firstName, lastName: studentData?.dataValues.lastName }
       res.json({ student })
 
       // req.student = { studentId: student?.dataValues.studentId }
@@ -35,9 +37,14 @@ export async function checkAndVerifyLecturerToken (req: Request, res: Response):
       res.json({ noTokenError: 'Unauthorized - Token not provided' })
     } else {
       const decoded = jwt.verify(token, secret) as { loginkey: string }
-      const lecturer = await Lecturer.findOne({
+      const lecturerData = await Lecturer.findOne({
         where: { lecturerId: decoded.loginkey }
       })
+      const checkDraftCourseByLecturer = await DraftExam.findOne({
+        attributes: ['courseCode'],
+        where: { lecturerId: decoded.loginkey }
+      })
+      const lecturer = { title: lecturerData?.dataValues.title, lecturerId: lecturerData?.dataValues.lecturerId, firstName: lecturerData?.dataValues.firstName, lastName: lecturerData?.dataValues.lastName, faculty: lecturerData?.dataValues.faculty, department: lecturerData?.dataValues.department, email: lecturerData?.dataValues.email, employeeID: lecturerData?.dataValues.employeeID, draftCourses: [checkDraftCourseByLecturer?.dataValues.courseCode] }
       res.json({ lecturer })
 
       // req.student = { lecturerId: student?.dataValues.lecturerId }

@@ -29,11 +29,13 @@ class DraftExam extends Model {
   public questionType!: string
   static associate (models: any): void {
     DraftExam.belongsTo(models.Lecturer, {
-      foreignKey: 'lecturerId', as: 'DraftExam'
+      foreignKey: 'lecturerId',
+      as: 'DraftExam',
+      onDelete: 'CASCADE'
     })
-    DraftExam.belongsTo(models.Course, {
-      foreignKey: 'courseTitle', as: 'DraftExam'
-    })
+    // DraftExam.belongsTo(models.Course, {
+    //   foreignKey: 'courseTitle', as: 'DraftExam'
+    // })
   }
 }
 
